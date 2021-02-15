@@ -1,0 +1,22 @@
+.center {
+    text-align: center;
+    margin: auto;
+}
+
+.container {
+    text-align-last: left;
+    width: 250px;
+    clear: both;
+    margin: auto;
+}
+
+.container input {
+    width: 100%;
+    clear: both;
+}
+
+.button {
+    clear: both;
+    margin: auto;
+    display: inline-block;
+}
