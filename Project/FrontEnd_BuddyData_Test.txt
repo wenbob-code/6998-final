@@ -1,0 +1,21 @@
+Huiyu Zhao
+Electrical Engineering (2nd semester)
+Email: hz2691@columbia.edu
+
+course learned:
+	CSEE 4119 W	COMPUTER NETWORKS
+	EECS 4764 E	IoT - INTELLIG & CONNECTE
+	EEOR 4650 E	CONVEX OPTIMIZATION ELCT	
+	ELEN 6761 E	COMPUTER COMMUNCATION NET
+
+
+Wenbo Jiang
+Computer Engineering (2nd semester)
+Email: wj2311@columbia.edu
+
+course learned:
+	COMS 4111 W	INTRODUCTION TO DATABASES
+	EECS 4764 E	IoT - INTELLIG & CONNECTE
+	CSEE 4119 W	COMPUTER NETWORKS
+	CSEE 4868 W	System-On-Chip Platforms
+		
