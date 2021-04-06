@@ -88,10 +88,15 @@
             class="w200"
           ></el-input>
         </el-form-item>
-        <el-form-item label="Address">
+        <el-form-item label="soc">
           <el-input
-            v-model="userInfoForm.address"
-            placeholder="Enter Your Address"
+            v-model="userInfoForm.soc"
+            placeholder="Enter Your City Or State"
+            class="w200 mr10"
+          ></el-input>
+          <el-input 
+             v-model="userInfoForm.country"
+            placeholder="Enter Your Country"
             class="w200"
           ></el-input>
         </el-form-item>
@@ -151,7 +156,8 @@ export default {
       userInfoForm: {
         name: "",
         title: "",
-        address: "",
+        soc: "",
+        country:"",
         imageUrl:'',
         email:'',
         wechat:'',
