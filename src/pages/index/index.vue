@@ -561,19 +561,16 @@ export default {
     },
   },
 
-<<<<<<< Updated upstream
   created(){
     // RegisterUser();
     console.log("123")
   },
-  mounted() {},
-=======
+  // mounted() {},
   mounted() {
     this.list = this.states.map((item) => {
       return { value: `value:${item}`, label: `label:${item}` };
     });
   },
->>>>>>> Stashed changes
   computed: {
     groupList: function () {
       let arr;
