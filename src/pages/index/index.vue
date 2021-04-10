@@ -79,13 +79,30 @@
         <div class="group mb30">
           <div class="title mb20">
             <span>Buddy</span>
-            <el-switch
-              v-model="isOpen"
-              active-text="Open For Team Mate"
-              inactive-text=""
-              @change="changeStatus"
-            >
-            </el-switch>
+            <div>
+              <!-- find button -->
+              <el-button class="mr30" type="primary" plain
+              @click="showFindBuddyDialog"
+                >Find Your Buddy</el-button
+              >
+              <!-- search for teammate -->
+              <el-switch
+                v-model="isOpen"
+                active-text="Open For Team Mate"
+                inactive-text=""
+                @change="changeStatus"
+                class="mr30"
+              >
+              </el-switch>
+              <!-- search for studyBuddy -->
+              <el-switch
+                v-model="isOpenForStudy"
+                active-text="Open For Study Buddy"
+                inactive-text=""
+                @change="changeStudyStatus"
+              >
+              </el-switch>
+            </div>
           </div>
           <div class="groupList">
             <div
@@ -216,7 +233,53 @@
         <el-button @click="delCoursesDialogFlag = false">Cancel</el-button>
       </span>
     </el-dialog>
-
+    <!-- Find Buddy Dialog-->
+    <el-dialog :visible.sync="isShowFindBuddyDialog" title="Find Your Buddy">
+      <!-- search conditions -->
+      <div class="searchConditions mb30">
+        <el-form :model="searchForm" ref="searchBuddyForm" :inline="true">
+          <el-form-item label="Type Of Buddy" class="mr30">
+            <el-select v-model="searchForm.buddyType">
+              <el-option
+                v-for="(item, index) in searchForm.buddyTypeList"
+                :key="index"
+                :label="item.name"
+                :value="item.value"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item :label="sConditionName" v-if="searchForm.buddyType!=''">
+            <el-select v-model="searchForm.sCondition">
+              <el-option
+                v-for="(item, index) in searchForm.sConditionList"
+                :key="index"
+                :label="item.name"
+                :value="item.value"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary">Search</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+      <el-table :data="tableData" style="width: 100%">
+          <el-table-column  label="HeadImg">
+            <template slot-scope="scope">
+              <img :src="scope.row.headImg">
+            </template>
+          </el-table-column>
+          <el-table-column prop="name" label="Name" >
+          </el-table-column>
+          <el-table-column prop="major" label="Major"> </el-table-column>
+          <el-table-column prop="email" label="Email"> </el-table-column>
+          <el-table-column label="Operation"> 
+            <template slot-scope="scope">
+              <el-button type="text" @click="checkDetail(scope.row)">Detail</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -282,6 +345,7 @@ export default {
       buddyDialogFlag: false,
       jwbDialogFlag: false,
       isOpen: false,
+      isOpenForStudy: false,
       addCoursesDialogFlag: false,
       delCoursesDialogFlag: false,
       addCoursesSelectors: "",
@@ -292,6 +356,45 @@ export default {
           courseNo: 1,
         },
       ],
+      isShowFindBuddyDialog: false,
+      searchForm:{
+        buddyType:'',
+        buddyTypeList:[
+          {
+            id:1,
+            name:'Team Mate',
+            value:1,
+          },
+          {
+            id:2,
+            name:'Study Buddy',
+            value:2
+          },
+        ],
+        sCondition:'',
+        sConditionList:[
+          {
+            id:1,
+            name:'a',
+            value:1
+          },
+          {
+            id:2,
+            name:'b',
+            value:2
+          },
+        ],
+        
+      },
+      tableData:[
+          {
+            id:1,
+            headImg:'',
+            name:'11111111',
+            major:'2222222',
+            email:'333333333',
+          }
+        ]
     };
   },
 
@@ -317,16 +420,30 @@ export default {
       }
     },
     changeStatus(e) {
-      // console.log(e)
-        this.$confirm("Are You Want To Update Your Status?", "Tips", {
-          confirmButtonText: "Yes",
-          cancelButtonText: "No",
-          type: "info",
-        }).then(() => {
-          console.log(1111)
-        }).catch(() => {
-          this.isOpen = !this.isOpen
+      this.$confirm("Are You Want To Update Your Status?", "Tips", {
+        confirmButtonText: "Yes",
+        cancelButtonText: "No",
+        type: "info",
+      })
+        .then(() => {
+          console.log(1111);
         })
+        .catch(() => {
+          this.isOpen = !this.isOpen;
+        });
+    },
+    changeStudyStatus() {
+      this.$confirm("Are You Want To Update Your Status?", "Tips", {
+        confirmButtonText: "Yes",
+        cancelButtonText: "No",
+        type: "info",
+      })
+        .then(() => {
+          console.log(1111);
+        })
+        .catch(() => {
+          this.isOpenForStudy = !this.isOpenForStudy;
+        });
     },
     showAddCoursesDialog() {
       this.addCoursesDialogFlag = true;
@@ -364,6 +481,12 @@ export default {
           this.delCoursesDialogFlag = false;
         });
     },
+    showFindBuddyDialog(){
+      this.isShowFindBuddyDialog = true
+    },
+    checkDetail(row){
+      console.log(row)
+    }
   },
 
   mounted() {},
@@ -461,6 +584,15 @@ export default {
         ];
       }
       return arr;
+    },
+    sConditionName: function () {
+      if (this.searchForm.buddyType == 1) {
+        return "Concentration";
+      } else if (this.searchForm.buddyType == 2) {
+        return "On/Off Line";
+      }else{
+        return ''
+      }
     },
   },
 };
