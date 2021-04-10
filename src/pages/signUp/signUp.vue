@@ -60,12 +60,14 @@
           </el-form-item>
           <el-form-item prop="password">
             <el-input
+                type=password
               placeholder="Password"
               v-model="signUpForm.password"
             ></el-input>
           </el-form-item>
           <el-form-item prop="confirmedPassword">
             <el-input
+                type=password
               placeholder="Confirm Your Password"
               v-model="signUpForm.confirmedPassword"
             ></el-input>

@@ -15,7 +15,7 @@
           <!-- 登录按钮 -->
           <el-button type="text" class="mr10">Sign In</el-button>
           <!-- 签出按钮 -->
-          <el-button type="text">LogOut</el-button>
+          <el-button type="text" @click="goSignInPage">LogOut</el-button>
         </div>
         <!-- 用户头像 -->
         <div class="userImg" @click="goPersonalCenter">
@@ -463,6 +463,9 @@ export default {
     //  跳转个人中心
     goPersonalCenter() {
       this.$router.push("/homePage");
+    },
+    goSignInPage() {
+      this.$router.push("/login");
     },
     //  日历切换月份
     toggleMonth(date) {
