@@ -81,8 +81,11 @@
             <span>Buddy</span>
             <div>
               <!-- find button -->
-              <el-button class="mr30" type="primary" plain
-              @click="showFindBuddyDialog"
+              <el-button
+                class="mr30"
+                type="primary"
+                plain
+                @click="showFindBuddyDialog"
                 >Find Your Buddy</el-button
               >
               <!-- search for teammate -->
@@ -204,12 +207,19 @@
     <!-- addCoursesDialog -->
     <el-dialog :visible.sync="addCoursesDialogFlag">
       <p class="mb30 font30">Add Another Course</p>
-      <el-select v-model="addCoursesSelectors" placeholder="Select">
-        <el-option
+      <el-select
+        v-model="addCoursesSelectors"
+        multiple
+        filterable
+        remote
+        reserve-keyword
+        placeholder="Please enter a keyword"
+        :remote-method="remoteMethod"
+        ><el-option
           v-for="(item, index) in courseList"
           :key="index"
-          :label="item.name"
-          :value="item.courseNo"
+          :label="item.label"
+          :value="item.value"
         ></el-option>
       </el-select>
       <span slot="footer">
@@ -248,7 +258,10 @@
               ></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item :label="sConditionName" v-if="searchForm.buddyType!=''">
+          <el-form-item
+            :label="sConditionName"
+            v-if="searchForm.buddyType != ''"
+          >
             <el-select v-model="searchForm.sCondition">
               <el-option
                 v-for="(item, index) in searchForm.sConditionList"
@@ -264,21 +277,22 @@
         </el-form>
       </div>
       <el-table :data="tableData" style="width: 100%">
-          <el-table-column  label="HeadImg">
-            <template slot-scope="scope">
-              <img :src="scope.row.headImg">
-            </template>
-          </el-table-column>
-          <el-table-column prop="name" label="Name" >
-          </el-table-column>
-          <el-table-column prop="major" label="Major"> </el-table-column>
-          <el-table-column prop="email" label="Email"> </el-table-column>
-          <el-table-column label="Operation"> 
-            <template slot-scope="scope">
-              <el-button type="text" @click="checkDetail(scope.row)">Detail</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+        <el-table-column label="HeadImg">
+          <template slot-scope="scope">
+            <img :src="scope.row.headImg" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="name" label="Name"> </el-table-column>
+        <el-table-column prop="major" label="Major"> </el-table-column>
+        <el-table-column prop="email" label="Email"> </el-table-column>
+        <el-table-column label="Operation">
+          <template slot-scope="scope">
+            <el-button type="text" @click="checkDetail(scope.row)"
+              >Detail</el-button
+            >
+          </template>
+        </el-table-column>
+      </el-table>
     </el-dialog>
   </div>
 </template>
@@ -348,53 +362,100 @@ export default {
       isOpenForStudy: false,
       addCoursesDialogFlag: false,
       delCoursesDialogFlag: false,
-      addCoursesSelectors: "",
+      addCoursesSelectors: [],
       delCoursesSelectors: "",
-      courseList: [
-        {
-          name: "English",
-          courseNo: 1,
-        },
+      courseList: [],
+      list: [],
+      states: [
+        "Alabama",
+        "Alaska",
+        "Arizona",
+        "Arkansas",
+        "California",
+        "Colorado",
+        "Connecticut",
+        "Delaware",
+        "Florida",
+        "Georgia",
+        "Hawaii",
+        "Idaho",
+        "Illinois",
+        "Indiana",
+        "Iowa",
+        "Kansas",
+        "Kentucky",
+        "Louisiana",
+        "Maine",
+        "Maryland",
+        "Massachusetts",
+        "Michigan",
+        "Minnesota",
+        "Mississippi",
+        "Missouri",
+        "Montana",
+        "Nebraska",
+        "Nevada",
+        "New Hampshire",
+        "New Jersey",
+        "New Mexico",
+        "New York",
+        "North Carolina",
+        "North Dakota",
+        "Ohio",
+        "Oklahoma",
+        "Oregon",
+        "Pennsylvania",
+        "Rhode Island",
+        "South Carolina",
+        "South Dakota",
+        "Tennessee",
+        "Texas",
+        "Utah",
+        "Vermont",
+        "Virginia",
+        "Washington",
+        "West Virginia",
+        "Wisconsin",
+        "Wyoming",
       ],
       isShowFindBuddyDialog: false,
-      searchForm:{
-        buddyType:'',
-        buddyTypeList:[
+      searchForm: {
+        buddyType: "",
+        buddyTypeList: [
           {
-            id:1,
-            name:'Team Mate',
-            value:1,
+            id: 1,
+            name: "Team Mate",
+            value: 1,
           },
           {
-            id:2,
-            name:'Study Buddy',
-            value:2
-          },
-        ],
-        sCondition:'',
-        sConditionList:[
-          {
-            id:1,
-            name:'a',
-            value:1
-          },
-          {
-            id:2,
-            name:'b',
-            value:2
+            id: 2,
+            name: "Study Buddy",
+            value: 2,
           },
         ],
-        
+        sCondition: "",
+        sConditionList: [
+          {
+            id: 1,
+            name: "a",
+            value: 1,
+          },
+          {
+            id: 2,
+            name: "b",
+            value: 2,
+          },
+        ],
       },
-      tableData:[
-          {
-            id:1,
-            headImg:'',
-            name:'11111111',
-            major:'2222222',
-            email:'333333333',
-          }
-        ]
+      tableData: [
+        {
+          id: 1,
+          headImg: "",
+          name: "11111111",
+          major: "2222222",
+          email: "333333333",
+        },
+      ],
     };
   },
 
@@ -481,19 +542,38 @@ export default {
           this.delCoursesDialogFlag = false;
         });
     },
-    showFindBuddyDialog(){
-      this.isShowFindBuddyDialog = true
+    showFindBuddyDialog() {
+      this.isShowFindBuddyDialog = true;
     },
-    checkDetail(row){
-      console.log(row)
-    }
+    checkDetail(row) {
+      console.log(row);
+    },
+    remoteMethod(query) {
+      if (query !== "") {
+        setTimeout(() => {
+          this.courseList = this.list.filter((item) => {
+            return item.label.toLowerCase().indexOf(query.toLowerCase()) > -1;
+          });
+        }, 200);
+      } else {
+        this.courseList = [];
+      }
+    },
   },
 
+<<<<<<< Updated upstream
   created(){
     // RegisterUser();
     console.log("123")
   },
   mounted() {},
+=======
+  mounted() {
+    this.list = this.states.map((item) => {
+      return { value: `value:${item}`, label: `label:${item}` };
+    });
+  },
+>>>>>>> Stashed changes
   computed: {
     groupList: function () {
       let arr;
@@ -594,8 +674,8 @@ export default {
         return "Concentration";
       } else if (this.searchForm.buddyType == 2) {
         return "On/Off Line";
-      }else{
-        return ''
+      } else {
+        return "";
       }
     },
   },

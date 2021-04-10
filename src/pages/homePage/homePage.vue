@@ -21,7 +21,6 @@
         </div>
         <div class="userPic">
           <img src="../../../static/images/peter.jpg" class="headImg" />
-
         </div>
         <div class="basicInfo mb30">
           <el-row class="name mb10">
@@ -94,8 +93,8 @@
             placeholder="Enter Your City Or State"
             class="w200 mr10"
           ></el-input>
-          <el-input 
-             v-model="userInfoForm.country"
+          <el-input
+            v-model="userInfoForm.country"
             placeholder="Enter Your Country"
             class="w200"
           ></el-input>
@@ -108,24 +107,89 @@
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload"
           >
-            <img v-if="userInfoForm.imageUrl" :src="userInfoForm.imageUrl" class="avatar" />
+            <img
+              v-if="userInfoForm.imageUrl"
+              :src="userInfoForm.imageUrl"
+              class="avatar"
+            />
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
         </el-form-item>
         <el-form-item label="Email">
-          <el-input v-model="userInfoForm.email" placeholder="Enter Your Email" class="w200"></el-input>
+          <el-input
+            v-model="userInfoForm.email"
+            placeholder="Enter Your Email"
+            class="w200"
+          ></el-input>
         </el-form-item>
         <el-form-item label="Phone">
-          <el-input v-model="userInfoForm.phone" placeholder="Enter Your Phone" class="w200"></el-input>
+          <el-input
+            v-model="userInfoForm.phone"
+            placeholder="Enter Your Phone"
+            class="w200"
+          ></el-input>
         </el-form-item>
         <el-form-item label="Wechat">
-          <el-input v-model="userInfoForm.wechat" placeholder="Enter Your WechatId" class="w200"></el-input>
+          <el-input
+            v-model="userInfoForm.wechat"
+            placeholder="Enter Your WechatId"
+            class="w200"
+          ></el-input>
         </el-form-item>
         <el-form-item label="FaceBook">
-          <el-input v-model="userInfoForm.faceBook" placeholder="Enter Your FaceBookId" class="w200"></el-input>
+          <el-input
+            v-model="userInfoForm.faceBook"
+            placeholder="Enter Your FaceBookId"
+            class="w200"
+          ></el-input>
         </el-form-item>
         <el-form-item label="LinkedIn">
-          <el-input v-model="userInfoForm.linkedIn" placeholder="Enter Your LinkedInId" class="w200"></el-input>
+          <el-input
+            v-model="userInfoForm.linkedIn"
+            placeholder="Enter Your LinkedInId"
+            class="w200"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="Skills">
+          <el-row
+            v-for="(item, index) in userInfoForm.skillList"
+            :key="index"
+            class="mb20"
+          >
+            <el-input
+              v-model="item.value"
+              placeholder="Enter Your Skills"
+              class="w200 mr20"
+            ></el-input>
+            <el-button
+              type="primary"
+              v-if="index == userInfoForm.skillList.length - 1"
+              @click="addInput(index)"
+              >plus</el-button
+            >
+            <el-button v-if="index >= 1" @click="delInput(index)"
+              >minus</el-button
+            >
+          </el-row>
+        </el-form-item>
+        <el-form-item label="CourseTaken">
+          <el-select
+            v-model="userInfoForm.courseTaken"
+            multiple
+            filterable
+            remote
+            reserve-keyword
+            placeholder="Please enter a keyword"
+            :remote-method="remoteMethod"
+          >
+            <el-option
+              v-for="item in userInfoForm.options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
+            </el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -136,13 +200,16 @@
   </div>
 </template>
 <script>
+// import apigClientFactory from '../../apiGateway-js-sdk/apigClient'
+import { getCourse,getLIST } from "../../api/api";
 export default {
   name: "homePage",
   data() {
     return {
       isEdit: false,
       userName: "Huiyu Zhao",
-      title: "Master of Science - MS at Columbia University in the City of New York",
+      title:
+        "Master of Science - MS at Columbia University in the City of New York",
       address: "East Lansing, Michigan, United States",
       emailId: "",
       phoneNum: "",
@@ -157,17 +224,82 @@ export default {
         name: "",
         title: "",
         soc: "",
-        country:"",
-        imageUrl:'',
-        email:'',
-        wechat:'',
-        phone:'',
-        faceBook:'',
-        linkedIn:''
+        country: "",
+        imageUrl: "",
+        email: "",
+        wechat: "",
+        phone: "",
+        faceBook: "",
+        linkedIn: "",
+        skillList: [
+          {
+            id: 1,
+            value: 11111,
+          },
+        ],
+        courseTaken: [],
+        options: [],
+        list: [],
+        states: [
+          "Alabama",
+          "Alaska",
+          "Arizona",
+          "Arkansas",
+          "California",
+          "Colorado",
+          "Connecticut",
+          "Delaware",
+          "Florida",
+          "Georgia",
+          "Hawaii",
+          "Idaho",
+          "Illinois",
+          "Indiana",
+          "Iowa",
+          "Kansas",
+          "Kentucky",
+          "Louisiana",
+          "Maine",
+          "Maryland",
+          "Massachusetts",
+          "Michigan",
+          "Minnesota",
+          "Mississippi",
+          "Missouri",
+          "Montana",
+          "Nebraska",
+          "Nevada",
+          "New Hampshire",
+          "New Jersey",
+          "New Mexico",
+          "New York",
+          "North Carolina",
+          "North Dakota",
+          "Ohio",
+          "Oklahoma",
+          "Oregon",
+          "Pennsylvania",
+          "Rhode Island",
+          "South Carolina",
+          "South Dakota",
+          "Tennessee",
+          "Texas",
+          "Utah",
+          "Vermont",
+          "Virginia",
+          "Washington",
+          "West Virginia",
+          "Wisconsin",
+          "Wyoming",
+        ],
       },
     };
   },
   methods: {
+    async init() {
+      const res = await getCourse();
+      console.log(res);
+    },
     showDialog() {
       this.editDialogFlag = true;
     },
@@ -190,21 +322,56 @@ export default {
     beforeAvatarUpload(file) {
       console.log(file);
     },
-    goHome(){
-      this.$router.push('/index')
+    goHome() {
+      this.$router.push("/index");
     },
-    goLogin(){
-      this.$router.push('/login')
-    }
+    goLogin() {
+      this.$router.push("/login");
+    },
+    addInput(index) {
+      if (this.userInfoForm.skillList.length >= 10) {
+        this.$message.error("At Most Ten Skills Are Allowed");
+      } else {
+        this.userInfoForm.skillList.push({
+          id: index + 1,
+          value: "",
+        });
+      }
+    },
+    delInput(index) {
+      this.userInfoForm.skillList = this.userInfoForm.skillList.filter(
+        (item, i) => {
+          return index != i;
+        }
+      );
+    },
+    remoteMethod(query) {
+      if (query !== "") {
+        setTimeout(() => {
+          this.userInfoForm.options = this.userInfoForm.list.filter((item) => {
+            return item.label.toLowerCase().indexOf(query.toLowerCase()) > -1;
+          });
+        }, 200);
+      } else {
+        this.userInfoForm.options = [];
+      }
+    },
   },
-  created() {},
+  created() {
+    // this.showDialog();
+    this.init();
+  },
+  mounted() {
+    this.userInfoForm.list = this.userInfoForm.states.map((item) => {
+      return { value: `value:${item}`, label: `label:${item}` };
+    });
+  },
 };
 </script>
 <style lang="scss" scoped>
 .container {
   // height: 100%;
   background: #acc8ec;
-;
   padding-bottom: 50px;
   .content {
     width: 80%;
@@ -297,5 +464,8 @@ export default {
   width: 178px;
   height: 178px;
   display: block;
+}
+.mb20 {
+  margin-bottom: 20px;
 }
 </style>
