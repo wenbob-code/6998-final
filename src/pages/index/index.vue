@@ -30,10 +30,16 @@
     <!-- 顶部导航栏 -->
     <div class="tabs flex_alignCenter">
       <el-tabs v-model="activeName" class="w73">
-        <el-tab-pane label="COMS 4111" name="first"></el-tab-pane>
-        <el-tab-pane label="COMS 6998" name="second"></el-tab-pane>
-        <el-tab-pane label="ELEN 6767" name="third"></el-tab-pane>
-        <el-tab-pane label="ELEN 6883" name="fourth"></el-tab-pane>
+        <el-tab-pane
+            v-for="(item, index) in userCourseList"
+            :key="index"
+            :label="item.label"
+            :name="item.name"
+        ></el-tab-pane>
+<!--        <el-tab-pane label="COMS 4111" name="first"></el-tab-pane>-->
+<!--        <el-tab-pane label="COMS 6998" name="second"></el-tab-pane>-->
+<!--        <el-tab-pane label="ELEN 6767" name="third"></el-tab-pane>-->
+<!--        <el-tab-pane label="ELEN 6883" name="fourth"></el-tab-pane>-->
       </el-tabs>
       <i
         class="el-icon-circle-plus font30 mr10 cp"
@@ -299,6 +305,7 @@
 
 <script>
 import { FunctionalCalendar } from "vue-functional-calendar";
+import {getCourse, getAllExistingCourse} from "@/api/api";
 export default {
   name: "index",
   components: {
@@ -365,7 +372,14 @@ export default {
       addCoursesSelectors: [],
       delCoursesSelectors: "",
       courseList: [],
+      userCourseList: [
+        {"label": "COMS 4111", "name": "first"},
+        {"label": "COMS 6998", "name": "second"},
+        {"label": "ELEN 6767", "name": "third"},
+        {"label": "ELEN 6883", "name": "fourth"},
+      ],
       list: [],
+      existingCourse: [],
       states: [
         "Alabama",
         "Alaska",
@@ -460,10 +474,25 @@ export default {
   },
 
   methods: {
+    // setup the inital info
+    async init() {
+      // get all courses from database
+      const res = await getAllExistingCourse();
+
+      var i;
+      for (i = 0; i < res.body.length; i++) {
+        var course_format = res.body[i].course_no + " - " + res.body[i].course_name +
+            " - " + res.body[i].professor
+        // console.log(course_format);
+        this.existingCourse.push(course_format);
+      }
+      // TODO: get user's data from database
+    },
     //  跳转个人中心
     goPersonalCenter() {
       this.$router.push("/homePage");
     },
+    // 跳转登录界面
     goSignInPage() {
       this.$router.push("/login");
     },
@@ -566,12 +595,23 @@ export default {
 
   created(){
     // RegisterUser();
-    console.log("123")
+    this.init();
+    this.userCourseList =  [
+      {"label": "COMS 4111", "name": "first"},
+      {"label": "COMS 6998", "name": "second"}
+    ];
+
+    this.existingCourse.push("ciasdasd");
   },
   // mounted() {},
   mounted() {
-    this.list = this.states.map((item) => {
-      return { value: `value:${item}`, label: `label:${item}` };
+    // console.log(this.states);
+    // console.log(this.existingCourse);
+    this.list = this.existingCourse.map((item) => {
+      console.log(item);
+      return {
+        value: `value:${item}`,
+        label: `label:${item}`};
     });
   },
   computed: {
