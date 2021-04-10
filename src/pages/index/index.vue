@@ -489,6 +489,10 @@ export default {
     }
   },
 
+  created(){
+    // RegisterUser();
+    console.log("123")
+  },
   mounted() {},
   computed: {
     groupList: function () {

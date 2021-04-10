@@ -85,7 +85,9 @@
   </div>
 </template>
 <script>
+import { RegisterUser,ConfirmEmail } from '../../app/auth.js';
 export default {
+
   name: "signUp",
   data() {
     return {
@@ -111,13 +113,13 @@ export default {
         email: [
           { required: true, message: "Please Enter email", trigger: "blur" },
         ],
-        code: [
-          {
-            required: true,
-            message: "Please Enter verifyCode",
-            trigger: "blur",
-          },
-        ],
+        // code: [
+        //   {
+        //     required: true,
+        //     message: "Please Enter verifyCode",
+        //     trigger: "blur",
+        //   },
+        // ],
         password: [
           { required: true, message: "Please Enter password", trigger: "blur" },
         ],
@@ -142,21 +144,49 @@ export default {
       this.$refs.signUpForm.validate((valid) => {
         if (!valid) {
           this.$message.error("Please Complete All Information");
+        }else if (this.signUpForm.password != this.signUpForm.confirmedPassword){
+          this.$message.error("Password and confirmpassword should be the same");
+        }else {
+          ConfirmEmail(this.signUpForm.firstName+'_'+this.signUpForm.lastName,
+          this.signUpForm.code,this.signupcallback)
         }
       });
     },
+    signupcallback(result){
+      if (result == "sucess"){
+        alert("Signup Success!");
+        this.$router.push('/login')
+      }
+    },
     sendCode() {
-      var countDown = setInterval(() => {
-        if (this.count < 1) {
-          this.isSended = false;
-          this.buttonText = "Send Code";
-          this.count = 300;
-          clearInterval(countDown);
-        } else {
-          this.isSended = true;
-          this.buttonText = this.count-- + "s Resend";
+      this.$refs.signUpForm.validate((valid) => {
+        if (!valid) {
+          this.$message.error("Please Complete All Information");
+        }else if (this.signUpForm.password != this.signUpForm.confirmedPassword){
+          this.$message.error("Password and confirmpassword should be the same");
+        }else{
+          var countDown = setInterval(() => {
+            if (this.count < 1) {
+              this.isSended = false;
+              this.buttonText = "Send Code";
+              this.count = 300;
+              clearInterval(countDown);
+            } else {
+              this.isSended = true;
+              this.buttonText = this.count-- + "s Resend";
+            }
+          }, 1000);
+          RegisterUser(this.signUpForm.firstName+"_"+this.signUpForm.lastName,
+                  this.signUpForm.password,
+                  this.signUpForm.email,
+                  this.signUpForm.firstName,
+                  this.signUpForm.lastName,
+          function(cognitoUser){
+              console.log(cognitoUser)
+          })
         }
-      }, 1000);
+      });
+
     },
   },
   created() {},

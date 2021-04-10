@@ -37,6 +37,7 @@
   </div>
 </template>
 <script>
+import { Login } from '../../app/auth.js';
 export default {
   name:"login",
   data(){
@@ -64,8 +65,19 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if(!valid){
           this.$message.error('Please Complete All Information')
+        }else{
+          Login(this.loginForm.email,this.loginForm.password,this.logincallback);
         }
       })
+    },
+    logincallback(result){
+      console.log(result)
+        if (result == "success") {
+          console.log("success")
+          this.$cookies.set('user_email', this.loginForm.email, 60 * 60 * 24 * 7)
+          console.log(this.$cookies.get('user_email'))
+          this.$router.push('/index')
+        }
     }
   },
   created(){}
