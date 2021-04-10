@@ -16,6 +16,10 @@ function RegisterUser(username,password,email,firstname,lastname,callback){
     userPool.signUp(username, password, attributeList, null, function(err, result){
         if (err) {
             console.log(err);
+            if (err["code"]=="UsernameExistsException"){
+                ResendCode(username);
+            }
+            console.log("resend");
             return;
         }
         var cognitoUser = result.user;
@@ -69,4 +73,21 @@ function Login(email,password,callback){
 
 }
 
-export { RegisterUser,ConfirmEmail,Login }
+function ResendCode(username){
+    var userData = {
+        Username: username,
+        Pool: userPool,
+    };
+
+    var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+    cognitoUser.resendConfirmationCode(function(err, result) {
+	if (err) {
+		alert(err.message || JSON.stringify(err));
+		return;
+	}
+	console.log(result);
+});
+
+}
+
+export { RegisterUser,ConfirmEmail,Login,ResendCode }

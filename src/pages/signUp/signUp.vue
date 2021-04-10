@@ -85,7 +85,7 @@
   </div>
 </template>
 <script>
-import { RegisterUser,ConfirmEmail } from '../../app/auth.js';
+import { RegisterUser,ConfirmEmail,ResendCode } from '../../app/auth.js';
 export default {
 
   name: "signUp",
@@ -147,7 +147,7 @@ export default {
         }else if (this.signUpForm.password != this.signUpForm.confirmedPassword){
           this.$message.error("Password and confirmpassword should be the same");
         }else {
-          ConfirmEmail(this.signUpForm.firstName+'_'+this.signUpForm.lastName,
+          ConfirmEmail(this.signUpForm.firstName+"_"+this.signUpForm.lastName,
           this.signUpForm.code,this.signupcallback)
         }
       });
