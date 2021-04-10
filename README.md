@@ -34,4 +34,6 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 <!--  页面代码进行格式化，要美观，看起来舒服 -->
 
 ## Reference
+### OS X setup
 * If `npm install` run into error like `No receipt for 'com.apple.pkg.CLTools_Executables' found at '/'.` on OS X, try [this](https://stackoverflow.com/questions/60573595/npm-install-fails-on-node-gyp-rebuild-with-gyp-no-xcode-or-clt-version-detec).
+* If `npm run serve` run into Permission denied error, try `chmod 777 /your_project_path/node_modules/.bin/vue-cli-service`.
