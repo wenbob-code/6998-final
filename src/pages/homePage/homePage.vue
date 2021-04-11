@@ -80,10 +80,10 @@
             class="w200"
           ></el-input>
         </el-form-item>
-        <el-form-item label="Title">
+        <el-form-item label="Concentration">
           <el-input
-            v-model="userInfoForm.title"
-            placeholder="Enter Title"
+            v-model="userInfoForm.concentration"
+            placeholder="Enter Concentration"
             class="w200"
           ></el-input>
         </el-form-item>
@@ -222,7 +222,7 @@ export default {
       editDialogFlag: false,
       userInfoForm: {
         name: "",
-        title: "",
+        concentration: "",
         soc: "",
         country: "",
         imageUrl: "",
@@ -303,11 +303,26 @@ export default {
       console.log(user_email);
       const userInfoResponse = await getUserInfo({"user_email":user_email});
       console.log(userInfoResponse);
-      this.phoneNum = userInfoResponse.body.Phone;
-      this.wechatId = userInfoResponse.body.Wechat;
-      this.faceBookId = userInfoResponse.body.FaceBook;
-      this.linkedInId = userInfoResponse.body.LinkedIn;
-
+      this.phoneNum = userInfoResponse.Phone;
+      this.wechatId = userInfoResponse.Wechat;
+      this.faceBookId = userInfoResponse.FaceBook;
+      this.linkedInId = userInfoResponse.LinkedIn;
+      this.userName = userInfoResponse.FirstName + " " + userInfoResponse.LastName;
+      this.address = userInfoResponse.CityOrState + ", " + userInfoResponse.Country;
+      this.title = userInfoResponse.Major;
+      this.skillList = userInfoResponse.Skill;
+      this.courseTakenList = userInfoResponse.CourseTaken;
+      this.userInfoForm.name = this.userName;
+      this.userInfoForm.concentration = this.title;
+      this.userInfoForm.country = userInfoResponse.Country;
+      this.userInfoForm.email = this.emailId;
+      this.userInfoForm.soc = userInfoResponse.CityOrState;
+      this.userInfoForm.faceBook = this.faceBookId;
+      this.userInfoForm.linkedIn = this.linkedInId;
+      this.userInfoForm.wechat = this.wechatId;
+      this.userInfoForm.phone = this.phoneNum;
+      this.userInfoForm.skillList = this.skillList;
+      this.userInfoForm.courseTaken = this.courseTakenList;
     },
     showDialog() {
       this.editDialogFlag = true;

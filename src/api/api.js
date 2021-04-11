@@ -15,6 +15,6 @@ export function getAllExistingCourse(data = {}) {
 }
 
 export function getUserInfo(data = {}) {
-    // this function will get all existing courses from database
+    // this function will get user's info from database
     return Request('/myinfo', { methods: 'GET', data });
 }
