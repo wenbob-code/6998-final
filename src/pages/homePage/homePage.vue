@@ -52,8 +52,9 @@
                     :key="index"
                     class="mb10"
                   >
-                    {{ item.name }}
+                    {{ item }}
                   </p>
+
                 </el-tab-pane>
                 <el-tab-pane label="Course Taken" name="courseTaken">
                   <p
@@ -201,7 +202,7 @@
 </template>
 <script>
 // import apigClientFactory from '../../apiGateway-js-sdk/apigClient'
-import {getCourse, getAllExistingCourse, getUserInfo} from "@/api/api";
+import {getCourse, getAllExistingCourse, getUserInfo, setUserInfo} from "@/api/api";
 export default {
   name: "homePage",
   data() {
@@ -232,10 +233,10 @@ export default {
         faceBook: "",
         linkedIn: "",
         skillList: [
-          {
-            id: 1,
-            value: 11111,
-          },
+          // {
+          //   // id: 1,
+          //   // value: "oooo",
+          // },
         ],
         courseTaken: [],
         options: [],
@@ -307,12 +308,13 @@ export default {
       console.log(userInfoResponse)
       this.phoneNum = userInfoResponse.Phone;
       this.wechatId = userInfoResponse.Wechat;
-      this.faceBookId = userInfoResponse.FaceBook;
+      this.faceBookId = userInfoResponse.Facebook;
       this.linkedInId = userInfoResponse.LinkedIn;
       this.userName = userInfoResponse.FirstName + " " + userInfoResponse.LastName;
       this.address = userInfoResponse.CityOrState + ", " + userInfoResponse.Country;
       this.title = userInfoResponse.Major;
       this.skillList = userInfoResponse.Skill;
+      console.log(this.skillList);
       this.courseTakenList = userInfoResponse.CourseTaken;
       this.userInfoForm.name = this.userName;
       this.userInfoForm.concentration = this.title;
@@ -323,7 +325,18 @@ export default {
       this.userInfoForm.linkedIn = this.linkedInId;
       this.userInfoForm.wechat = this.wechatId;
       this.userInfoForm.phone = this.phoneNum;
-      this.userInfoForm.skillList = this.skillList;
+
+      var i;
+      for (i = 0; i < this.skillList.length; i++) {
+        this.userInfoForm.skillList.push({
+          id: i,
+          value: this.skillList[i],
+        })
+      }
+
+      //
+      // this.userInfoForm.skillList = this.skillList;
+
       this.userInfoForm.courseTaken = this.courseTakenList;
     },
     showDialog() {
@@ -336,6 +349,8 @@ export default {
         confirmButtonText: "Yes",
       })
         .then(() => {
+          setUserInfo(this.userInfoForm);
+
           this.editDialogFlag = false;
         })
         .catch(() => {
