@@ -21,7 +21,8 @@ export async function getUserInfo(data = {},callback) {
     callback(result);
 }
 
-export function setUserInfo(data = {}) {
+export async function setUserInfo(data = {},callback) {
     // this function will set user's data to database
-    return Request('/myinfo', { methods: 'POST', data });
+    await Request('/myinfo', { methods: 'POST', data });
+    callback();
 }

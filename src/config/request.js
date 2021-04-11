@@ -57,7 +57,37 @@ export const Request = (url = '', params = {}) => {
                 return false;
             });
         });
-    } else {
+    } else if (params.methods == 'POST'){
+        return new Promise((resolve) => {
+            // 加载提示
+            // Toast.loading({
+            //     message: '加载中...',
+            //     loadingType: 'spinner',
+            //     forbidClick: true,
+            //     duration: '10000'
+            // });
+            axios.post(config.domainPath + url, {
+                params: Object.assign(params.data, {
+                    'clt': 'h5',
+                    'sign': '70ffb548fc64ac1'
+                })
+            }).then((res) => {
+                console.log(1)
+                if (res.data.code == "4000") {
+                    Toast(res.data.msg || '登录失败');
+                    storage.removeToken();
+                    this.$store.commit("change", true);
+                    this.$store.commit("changeLoginStatus", false);
+                }
+                // Toast.clear();
+                return resolve(res.data);
+            }).catch(err => {
+                // Toast.clear();
+                console.log(err);
+                return false;
+            });
+        });
+    }else {
         return new Promise((resolve) => {
             // 加载提示
             // Toast.loading({

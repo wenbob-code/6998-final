@@ -349,8 +349,7 @@ export default {
         confirmButtonText: "Yes",
       })
         .then(() => {
-          setUserInfo(this.userInfoForm);
-
+          setUserInfo(this.userInfoForm,this.init);
           this.editDialogFlag = false;
         })
         .catch(() => {
