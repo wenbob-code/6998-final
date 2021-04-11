@@ -479,7 +479,7 @@ export default {
       for (i = 0; i < allCourseResponse.body.length; i++) {
         var course_format = allCourseResponse.body[i].course_no + " - " + allCourseResponse.body[i].course_name +
             " - " + allCourseResponse.body[i].professor
-        // console.log(course_format);
+        console.log(course_format);
         this.existingCourse.push(course_format);
       }
       this.list = this.existingCourse.map(item => {
