@@ -38,11 +38,11 @@
           <el-row>
             <el-col :span="8">
               <p class="ml10 font20 mb30 h40 flex_alignCenter">Contact</p>
-              <p class="ml10 mb10 font16">Email:{{ emailId }}</p>
-              <p class="ml10 mb10 font16">Phone:{{ phoneNum }}</p>
-              <p class="ml10 mb10 font16">Wechat:{{ wechatId }}</p>
-              <p class="ml10 mb10 font16">FaceBook:{{ faceBookId }}</p>
-              <p class="ml10 mb10 font16">LinkedIn:{{ linkedInId }}</p>
+              <p class="ml10 mb10 font16">Email: {{ emailId }}</p>
+              <p class="ml10 mb10 font16">Phone: {{ phoneNum }}</p>
+              <p class="ml10 mb10 font16">Wechat: {{ wechatId }}</p>
+              <p class="ml10 mb10 font16">FaceBook: {{ faceBookId }}</p>
+              <p class="ml10 mb10 font16">LinkedIn: {{ linkedInId }}</p>
             </el-col>
             <el-col :span="16">
               <el-tabs v-model="activeName">
@@ -201,7 +201,7 @@
 </template>
 <script>
 // import apigClientFactory from '../../apiGateway-js-sdk/apigClient'
-import { getCourse,getLIST } from "../../api/api";
+import {getCourse, getAllExistingCourse, getUserInfo} from "@/api/api";
 export default {
   name: "homePage",
   data() {
@@ -297,8 +297,17 @@ export default {
   },
   methods: {
     async init() {
-      const res = await getCourse();
-      console.log(res);
+      // get user's data from database
+      let user_email = this.$cookies.get('user_email')
+      this.emailId = user_email;
+      console.log(user_email);
+      const userInfoResponse = await getUserInfo({"user_email":user_email});
+      console.log(userInfoResponse);
+      this.phoneNum = userInfoResponse.body.Phone;
+      this.wechatId = userInfoResponse.body.Wechat;
+      this.faceBookId = userInfoResponse.body.FaceBook;
+      this.linkedInId = userInfoResponse.body.LinkedIn;
+
     },
     showDialog() {
       this.editDialogFlag = true;

@@ -305,7 +305,7 @@
 
 <script>
 import { FunctionalCalendar } from "vue-functional-calendar";
-import {getCourse, getAllExistingCourse} from "@/api/api";
+import {getCourse, getAllExistingCourse, getUserInfo} from "@/api/api";
 export default {
   name: "index",
   components: {
@@ -477,16 +477,29 @@ export default {
     // setup the inital info
     async init() {
       // get all courses from database
-      const res = await getAllExistingCourse();
+      const allCourseResponse = await getAllExistingCourse();
 
       var i;
-      for (i = 0; i < res.body.length; i++) {
-        var course_format = res.body[i].course_no + " - " + res.body[i].course_name +
-            " - " + res.body[i].professor
+      for (i = 0; i < allCourseResponse.body.length; i++) {
+        var course_format = allCourseResponse.body[i].course_no + " - " + allCourseResponse.body[i].course_name +
+            " - " + allCourseResponse.body[i].professor
         // console.log(course_format);
         this.existingCourse.push(course_format);
       }
-      // TODO: get user's data from database
+
+      // get user's data from database
+      let user_email = this.$cookies.get('user_email')
+      console.log(user_email);
+      const userInfoResponse = await getUserInfo({user_email});
+      console.log(userInfoResponse);
+      if (userInfoResponse.body.CourseTaking == []){
+        this.userCourseList = [
+          {"label": "Please press + button to add course", "name": "first"}
+        ]
+      }
+      else {
+        this.userCourseList = userInfoResponse.body.CourseTaking
+      }
     },
     //  跳转个人中心
     goPersonalCenter() {
@@ -596,17 +609,20 @@ export default {
   created(){
     // RegisterUser();
     this.init();
-    this.userCourseList =  [
-      {"label": "COMS 4111", "name": "first"},
-      {"label": "COMS 6998", "name": "second"}
-    ];
+    // this.userCourseList =  [
+    //   {"label": "COMS 4111", "name": "first"},
+    //   {"label": "COMS 6998", "name": "second"}
+    // ];
 
-    this.existingCourse.push("ciasdasd");
+
+
+
+    this.existingCourse.push("diannao");
   },
   // mounted() {},
   mounted() {
-    // console.log(this.states);
-    // console.log(this.existingCourse);
+    console.log(this.states);
+    console.log(this.existingCourse);
     this.list = this.existingCourse.map((item) => {
       console.log(item);
       return {

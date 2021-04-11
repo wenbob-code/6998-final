@@ -13,3 +13,8 @@ export function getAllExistingCourse(data = {}) {
     // this function will get all existing courses from database
     return Request('/course', { methods: 'GET', data });
 }
+
+export function getUserInfo(data = {}) {
+    // this function will get all existing courses from database
+    return Request('/myinfo', { methods: 'GET', data });
+}
