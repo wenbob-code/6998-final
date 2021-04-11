@@ -9,12 +9,15 @@ export function getCourse(data = {}) {
     return Request('/LIST', { methods: 'POST', data });
   }
 
-export function getAllExistingCourse(data = {}) {
+export async function getAllExistingCourse(data = {},callback) {
     // this function will get all existing courses from database
-    return Request('/course', { methods: 'GET', data });
+    const result =  await Request('/course', { methods: 'GET', data });
+    callback(result);
 }
 
-export function getUserInfo(data = {}) {
+export async function getUserInfo(data = {},callback) {
     // this function will get all existing courses from database
-    return Request('/myinfo', { methods: 'GET', data });
+    const result = await Request('/myinfo', { methods: 'GET', data });
+    callback(result);
 }
+

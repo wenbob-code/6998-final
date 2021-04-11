@@ -373,10 +373,10 @@ export default {
       delCoursesSelectors: "",
       courseList: [],
       userCourseList: [
-        {"label": "COMS 4111", "name": "first"},
-        {"label": "COMS 6998", "name": "second"},
-        {"label": "ELEN 6767", "name": "third"},
-        {"label": "ELEN 6883", "name": "fourth"},
+        // {"label": "COMS 4111", "name": "first"},
+        // {"label": "COMS 6998", "name": "second"},
+        // {"label": "ELEN 6767", "name": "third"},
+        // {"label": "ELEN 6883", "name": "fourth"},
       ],
       list: [],
       existingCourse: [],
@@ -474,11 +474,7 @@ export default {
   },
 
   methods: {
-    // setup the inital info
-    async init() {
-      // get all courses from database
-      const allCourseResponse = await getAllExistingCourse();
-
+    getcourse_callback(allCourseResponse){
       var i;
       for (i = 0; i < allCourseResponse.body.length; i++) {
         var course_format = allCourseResponse.body[i].course_no + " - " + allCourseResponse.body[i].course_name +
@@ -486,20 +482,23 @@ export default {
         // console.log(course_format);
         this.existingCourse.push(course_format);
       }
-
-      // get user's data from database
-      let user_email = this.$cookies.get('user_email')
-      console.log(user_email);
-      const userInfoResponse = await getUserInfo({user_email});
-      console.log(userInfoResponse);
-      if (userInfoResponse.body.CourseTaking == []){
+      this.list = this.existingCourse.map(item => {
+        return {
+          value: `${item}`,
+          label: `${item}`};
+      });
+    },
+    getUserInfo_callback(response){
+      console.log(response);
+      if (response.CourseTaking.length == 0){
         this.userCourseList = [
           {"label": "Please press + button to add course", "name": "first"}
         ]
       }
       else {
-        this.userCourseList = userInfoResponse.body.CourseTaking
+        this.userCourseList = response.CourseTaking
       }
+      console.log(this.userCourseList);
     },
     //  跳转个人中心
     goPersonalCenter() {
@@ -597,6 +596,7 @@ export default {
       if (query !== "") {
         setTimeout(() => {
           this.courseList = this.list.filter((item) => {
+            console.log(this.list)
             return item.label.toLowerCase().indexOf(query.toLowerCase()) > -1;
           });
         }, 200);
@@ -608,27 +608,26 @@ export default {
 
   created(){
     // RegisterUser();
-    this.init();
+    getAllExistingCourse({},this.getcourse_callback);
     // this.userCourseList =  [
     //   {"label": "COMS 4111", "name": "first"},
     //   {"label": "COMS 6998", "name": "second"}
     // ];
-
-
-
-
-    this.existingCourse.push("diannao");
+    let user_email = this.$cookies.get('user_email')
+    getUserInfo({user_email},this.getUserInfo_callback)
+    // this.existingCourse.push("diannao");
   },
   // mounted() {},
   mounted() {
-    console.log(this.states);
-    console.log(this.existingCourse);
-    this.list = this.existingCourse.map((item) => {
-      console.log(item);
-      return {
-        value: `value:${item}`,
-        label: `label:${item}`};
-    });
+    // console.log(this.states);
+    // console.log(this.existingCourse);
+    // this.list = this.existingCourse.map(item => {
+    //   console.log(item);
+    //   return {
+    //     value: `value:${item}`,
+    //     label: `label:${item}`};
+    // });
+    // this.list = this.existingCourse.map(item => item+'+');
   },
   computed: {
     groupList: function () {
