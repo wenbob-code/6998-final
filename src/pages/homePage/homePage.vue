@@ -343,6 +343,7 @@ export default {
       this.userInfoForm.phone = this.phoneNum;
 
       var i;
+      this.userInfoForm.skillList = [];
       for (i = 0; i < this.skillList.length; i++) {
         this.userInfoForm.skillList.push({
           id: i,
