@@ -62,7 +62,7 @@
                     :key="index"
                     class="mb10"
                   >
-                    {{ item.name }}
+                    {{ item }}
                   </p>
                 </el-tab-pane>
               </el-tabs>
@@ -184,8 +184,8 @@
             :remote-method="remoteMethod"
           >
             <el-option
-              v-for="item in userInfoForm.options"
-              :key="item.value"
+              v-for="(item, index) in userInfoForm.options"
+              :key="index"
               :label="item.label"
               :value="item.value"
             >
@@ -221,6 +221,7 @@ export default {
       skillList: [],
       courseTakenList: [],
       editDialogFlag: false,
+      existingCourse: [],
       userInfoForm: {
         name: "",
         concentration: "",
@@ -241,6 +242,7 @@ export default {
         courseTaken: [],
         options: [],
         list: [],
+
         states: [
           "Alabama",
           "Alaska",
@@ -304,6 +306,20 @@ export default {
       console.log(user_email);
       getUserInfo({"user_email":user_email},this.getUserInfo_callback);
     },
+    getcourse_callback(allCourseResponse){
+      var i;
+      for (i = 0; i < allCourseResponse.body.length; i++) {
+        var course_format = allCourseResponse.body[i].course_no + " - " + allCourseResponse.body[i].course_name +
+            " - " + allCourseResponse.body[i].professor
+        // console.log(course_format);
+        this.existingCourse.push(course_format);
+      }
+      this.userInfoForm.list = this.existingCourse.map(item => {
+        return {
+          value: `${item}`,
+          label: `${item}`};
+      });
+    },
     getUserInfo_callback(userInfoResponse){
       console.log(userInfoResponse)
       this.phoneNum = userInfoResponse.Phone;
@@ -314,7 +330,7 @@ export default {
       this.address = userInfoResponse.CityOrState + ", " + userInfoResponse.Country;
       this.title = userInfoResponse.Major;
       this.skillList = userInfoResponse.Skill;
-      console.log(this.skillList);
+      // console.log(this.skillList);
       this.courseTakenList = userInfoResponse.CourseTaken;
       this.userInfoForm.name = this.userName;
       this.userInfoForm.concentration = this.title;
@@ -399,12 +415,13 @@ export default {
   },
   created() {
     // this.showDialog();
+    getAllExistingCourse({},this.getcourse_callback);
     this.init();
   },
   mounted() {
-    this.userInfoForm.list = this.userInfoForm.states.map((item) => {
-      return { value: `value:${item}`, label: `label:${item}` };
-    });
+    // this.userInfoForm.list = this.userInfoForm.states.map((item) => {
+    //   return { value: `value:${item}`, label: `label:${item}` };
+    // });
   },
 };
 </script>
