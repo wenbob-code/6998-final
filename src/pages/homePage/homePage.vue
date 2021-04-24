@@ -20,7 +20,7 @@
           />
         </div>
         <div class="userPic">
-          <img src="../../../static/images/peter.jpg" class="headImg" />
+          <img :src="imageUrl" class="headImg" />
         </div>
         <div class="basicInfo mb30">
           <el-row class="name mb10">
@@ -103,8 +103,10 @@
         <el-form-item label="Upload Your Photo">
           <el-upload
             class="avatar-uploader"
-            action="https://jsonplaceholder.typicode.com/posts/"
+            action="string"
+            accept="image/jpeg,image/png,image/jpg"
             :show-file-list="false"
+            :http-request="uploadImage"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload"
           >
@@ -202,7 +204,7 @@
 </template>
 <script>
 // import apigClientFactory from '../../apiGateway-js-sdk/apigClient'
-import {getCourse, getAllExistingCourse, getUserInfo, setUserInfo} from "@/api/api";
+import {getCourse, getAllExistingCourse, getUserInfo, setUserInfo,putPhoto} from "@/api/api";
 export default {
   name: "homePage",
   data() {
@@ -214,6 +216,7 @@ export default {
       address: "East Lansing, Michigan, United States",
       emailId: "",
       phoneNum: "",
+      imageUrl: "",
       wechatId: "",
       faceBookId: "",
       linkedInId: "",
@@ -273,6 +276,7 @@ export default {
       console.log(userInfoResponse)
       this.phoneNum = userInfoResponse.Phone;
       this.wechatId = userInfoResponse.Wechat;
+      this.imageUrl = userInfoResponse.S3Key;
       this.faceBookId = userInfoResponse.Facebook;
       this.linkedInId = userInfoResponse.LinkedIn;
       this.userName = userInfoResponse.FirstName + " " + userInfoResponse.LastName;
@@ -283,6 +287,7 @@ export default {
       this.courseTakenList = userInfoResponse.CourseTaken;
       this.userInfoForm.name = this.userName;
       this.userInfoForm.concentration = this.title;
+      this.userInfoForm.imageUrl = this.imageUrl
       this.userInfoForm.country = userInfoResponse.Country;
       this.userInfoForm.email = this.emailId;
       this.userInfoForm.soc = userInfoResponse.CityOrState;
@@ -300,12 +305,11 @@ export default {
           value: this.skillList[i],
         })
       }
-
-      //
-      // this.userInfoForm.skillList = this.skillList;
-
       this.userInfoForm.courseTaken = this.courseTakenList;
 
+    },
+    uploadPhoto_callback(photoName){
+      this.userInfoForm.imageUrl = "https://coms6998-user-photos.amazonaws.com/"+photoName;
     },
     showDialog() {
       this.editDialogFlag = true;
@@ -364,6 +368,21 @@ export default {
         this.userInfoForm.options = [];
       }
     },
+    uploadImage(param){
+      const formData = new FormData();
+      formData.append('file', param.file);
+      console.log(param.file);
+      var reader = new FileReader();
+      var callback = this.uploadPhoto_callback
+      reader.onloadend = function() {
+        var data = reader.result.split(",")[1]
+        putPhoto(data,{
+          "Content-Type": param.file.type+';base64',
+          "filesuffix": param.file.type.split('/')[1],
+        },callback);
+      }
+      reader.readAsDataURL(param.file);
+    }
   },
   created() {
     // this.showDialog();

@@ -16,9 +16,9 @@ export const Request = (url = '', params = {}) => {
     let token = storage.getToken();
     
     // 获取请求公用参数
-    params.data.token = token;
-    params.data.clt = 'h5';
-    params.data.sign = '70ffb548fc64ac1';
+    // params.data.token = token;
+    // params.data.clt = 'h5';
+    // params.data.sign = '70ffb548fc64ac1';
 
     // 不同的后台接口传不同的请求方式 以及和传参格式  将token设置在请求头中
     let contentType = 'application/x-www-form-urlencoded';
@@ -71,6 +71,38 @@ export const Request = (url = '', params = {}) => {
                     'clt': 'h5',
                     'sign': '70ffb548fc64ac1'
                 })
+            }).then((res) => {
+                console.log(1)
+                if (res.data.code == "4000") {
+                    Toast(res.data.msg || '登录失败');
+                    storage.removeToken();
+                    this.$store.commit("change", true);
+                    this.$store.commit("changeLoginStatus", false);
+                }
+                // Toast.clear();
+                return resolve(res.data);
+            }).catch(err => {
+                // Toast.clear();
+                console.log(err);
+                return false;
+            });
+        });
+    }else if (params.methods == 'PUT'){
+        return new Promise((resolve) => {
+            // 加载提示
+            // Toast.loading({
+            //     message: '加载中...',
+            //     loadingType: 'spinner',
+            //     forbidClick: true,
+            //     duration: '10000'
+            // });
+            axios.put(config.domainPath + url, {
+                // params: params.data,
+                data: params.data,
+                headers: {
+                    'Content-Type': params.headers.ContentType,
+                    'filesuffix': params.headers.filesuffix,
+                }
             }).then((res) => {
                 console.log(1)
                 if (res.data.code == "4000") {
