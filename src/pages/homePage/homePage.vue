@@ -210,10 +210,9 @@ export default {
   data() {
     return {
       isEdit: false,
-      userName: "Huiyu Zhao",
-      title:
-        "Master of Science - MS at Columbia University in the City of New York",
-      address: "East Lansing, Michigan, United States",
+      userName: "",
+      title: "",
+      address: "",
       emailId: "",
       phoneNum: "",
       imageUrl: "",
@@ -280,9 +279,9 @@ export default {
       this.faceBookId = userInfoResponse.Facebook;
       this.linkedInId = userInfoResponse.LinkedIn;
       this.userName = userInfoResponse.FirstName + " " + userInfoResponse.LastName;
-      this.address = userInfoResponse.CityOrState + ", " + userInfoResponse.Country;
+      this.address = userInfoResponse.CityOrState + "  " + userInfoResponse.Country;
       this.title = userInfoResponse.Major;
-      this.skillList = userInfoResponse.Skill;
+      this.skillList = userInfoResponse.Skill || [];
       // console.log(this.skillList);
       this.courseTakenList = userInfoResponse.CourseTaken;
       this.userInfoForm.name = this.userName;

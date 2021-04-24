@@ -96,7 +96,7 @@
               >
               <!-- search for teammate -->
               <el-switch
-                v-model="isOpen"
+                v-model= "isOpen[activeName]"
                 active-text="Open For Team Mate"
                 inactive-text=""
                 @change="changeStatus"
@@ -105,7 +105,7 @@
               </el-switch>
               <!-- search for studyBuddy -->
               <el-switch
-                v-model="isOpenForStudy"
+                v-model= "isOpenForStudy[activeName]"
                 active-text="Open For Study Buddy"
                 inactive-text=""
                 @change="changeStudyStatus"
@@ -314,7 +314,7 @@ export default {
 
   data() {
     return {
-      activeName: "first", // 导航栏下标
+      activeName: "", // 导航栏下标
       userImg: "", // 用户头像
       calendarData: {},
       markedDates: [],
@@ -365,8 +365,8 @@ export default {
       groupQrCode: require("../../../static/images/qrCodeOne.png"),
       buddyDialogFlag: false,
       jwbDialogFlag: false,
-      isOpen: false,
-      isOpenForStudy: false,
+      isOpen: {},
+      isOpenForStudy: {},
       addCoursesDialogFlag: false,
       delCoursesDialogFlag: false,
       addCoursesSelectors: [],
@@ -455,9 +455,9 @@ export default {
       this.userInfoForm["email"] = this.$cookies.get('user_email');
       this.userInfoForm["isFindingBuddy"] = response.IsFindingBuddy;
       this.userInfoForm["isFindingMate"] = response.IsFindingMate;
-      this.isOpen = response.IsFindingBuddy;
-      this.isOpenForStudy = response.IsFindingMate;
-      if (response.CourseTaking.length == 0){
+      this.isOpen = response.FindingBuddy;
+      this.isOpenForStudy = response.FindingMate;
+      if (!response.CourseTaking || response.CourseTaking.length == 0){
         this.userCourseList = [
           {"label": "Please press + button to add course", "name": "first"}
         ]
@@ -470,12 +470,12 @@ export default {
         for (i = 0; i < response.CourseTaking.length; i++) {
           if (i == 0){
             this.userCourseList.push(
-                {"label": this.existingCourseInfoById[response.CourseTaking[i]].course_no, "name": "first"}
+                {"label": this.existingCourseInfoById[response.CourseTaking[i]].course_no, "name": response.CourseTaking[i]}
             );
           }
           else{
             this.userCourseList.push(
-                {"label": this.existingCourseInfoById[response.CourseTaking[i]].course_no}
+                {"label": this.existingCourseInfoById[response.CourseTaking[i]].course_no, "name": response.CourseTaking[i]}
             );
           }
 
@@ -486,6 +486,9 @@ export default {
         // this.userCourseList = response.CourseTaking;
       }
       console.log(this.userCourseList);
+      if (this.activeName === "" || this.activeName == 0) {
+        this.activeName = this.userCourseList[0].name;
+      }
     },
     //  跳转个人中心
     goPersonalCenter() {
@@ -519,7 +522,7 @@ export default {
         type: "info",
       })
         .then(() => {
-          console.log(11111);
+          console.log(this.isOpen);
           this.updateUserInfo();
         })
         .catch(() => {
@@ -534,6 +537,7 @@ export default {
       })
         .then(() => {
           console.log(1111);
+          console.log(this.isOpenForStudy);
           this.updateUserInfo();
         })
         .catch(() => {
@@ -556,8 +560,8 @@ export default {
       }
       this.userInfoForm.courseTaking = temp_course_id;
 
-      this.userInfoForm.isFindingBuddy = this.isOpen;
-      this.userInfoForm.isFindingMate = this.isOpenForStudy;
+      this.userInfoForm.FindingBuddy = this.isOpen;
+      this.userInfoForm.FindingMate = this.isOpenForStudy;
 
       console.log(this.userInfoForm.courseTaking);
 
@@ -697,6 +701,8 @@ export default {
             groupName: "wechat",
           },
         ];
+      } else{
+        console.log(this.activeName)
       }
       return arr;
     },
