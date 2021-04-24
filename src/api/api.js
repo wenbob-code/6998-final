@@ -28,6 +28,12 @@ export async function getUserInfo(data = {}, callback) {
     callback(result);
 }
 
+export async function getCourseInfo(data = {}, course_id, callback) {
+    // this function will get all existing courses from database
+    const result = await Request('/courseinfo?course_id='+course_id, {methods: 'GET', data});
+    callback(result);
+}
+
 export async function setUserInfo(data = {}, callback) {
     // this function will set user's data to database
     await Request('/myinfo', {methods: 'POST', data});

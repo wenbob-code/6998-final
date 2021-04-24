@@ -305,7 +305,7 @@
 
 <script>
 import { FunctionalCalendar } from "vue-functional-calendar";
-import {getCourse, getAllExistingCourse, getUserInfo, setUserInfo} from "@/api/api";
+import {getCourse, getAllExistingCourse, getUserInfo, setUserInfo, getCourseInfo} from "@/api/api";
 export default {
   name: "index",
   components: {
@@ -351,16 +351,16 @@ export default {
       //     groupName: "wechat",
       //   },
       // ],
-      // buddyList: [
-      //   {
-      //     buddyImg: require("../../../static/images/peter.jpg"),
-      //     buddyName: "Huiyu Zhao",
-      //   },
-      //   {
-      //     buddyImg: require("../../../static/images/jwb.jpg"),
-      //     buddyName: "Wenbo Jiang",
-      //   },
-      // ],
+      buddyList: [
+        // {
+        //   buddyImg: require("../../../static/images/peter.jpg"),
+        //   buddyName: "Huiyu Zhao",
+        // },
+        // {
+        //   buddyImg: require("../../../static/images/jwb.jpg"),
+        //   buddyName: "Wenbo Jiang",
+        // },
+      ],
       groupDialogFlag: false,
       groupQrCode: require("../../../static/images/qrCodeOne.png"),
       buddyDialogFlag: false,
@@ -490,6 +490,38 @@ export default {
         this.activeName = this.userCourseList[0].name;
       }
     },
+    getBuddyInfo_callback(response){
+      console.log(response);
+
+      this.buddyList.push(
+          {
+            buddyImg: response.S3Key,
+            buddyName: response.FirstName + " " + response.LastName,
+          }
+      );
+
+      // console.log(this.$ref.container);
+
+    },
+
+
+    getCourseInfo_callback(response){
+      console.log(response);
+
+      // update buddy info
+      var buddies = response.body.buddies;
+      var i;
+      // reset buddy list
+
+      this.buddyList = [];
+      for (i = 0; i < buddies.length; i++) {
+        console.log(buddies[i])
+        getUserInfo({"user_email":buddies[i]},this.getBuddyInfo_callback);
+      }
+    },
+
+
+
     //  跳转个人中心
     goPersonalCenter() {
       this.$router.push("/homePage");
@@ -632,6 +664,7 @@ export default {
     // ];
     let user_email = this.$cookies.get('user_email')
     getUserInfo({user_email},this.getUserInfo_callback)
+
     // this.existingCourse.push("diannao");
   },
   // mounted() {},
@@ -701,48 +734,49 @@ export default {
             groupName: "wechat",
           },
         ];
-      } else{
-        console.log(this.activeName)
+      } else if (this.activeName.length > 5){
+        console.log(this.activeName);
+        getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
       }
       return arr;
     },
-    buddyList: function () {
-      let arr;
-      if (this.activeName == "first") {
-        arr = [
-          {
-            buddyImg: require("../../../static/images/peter.jpg"),
-            buddyName: "Huiyu Zhao",
-          },
-          {
-            buddyImg: require("../../../static/images/jwb.jpg"),
-            buddyName: "Wenbo Jiang",
-          },
-        ];
-      } else if (this.activeName == "second") {
-        arr = [
-          {
-            buddyImg: require("../../../static/images/peter.jpg"),
-            buddyName: "Huiyu Zhao",
-          },
-        ];
-      } else if (this.activeName == "third") {
-        arr = [
-          {
-            buddyImg: require("../../../static/images/jwb.jpg"),
-            buddyName: "Wenbo Jiang",
-          },
-        ];
-      } else if (this.activeName == "fourth") {
-        arr = [
-          {
-            buddyImg: require("../../../static/images/peter.jpg"),
-            buddyName: "Huiyu Zhao",
-          },
-        ];
-      }
-      return arr;
-    },
+    // buddyLists: function () {
+    //   let arr;
+    //   if (this.activeName == "first") {
+    //     arr = [
+    //       {
+    //         buddyImg: require("../../../static/images/peter.jpg"),
+    //         buddyName: "Huiyu Zhao",
+    //       },
+    //       {
+    //         buddyImg: require("../../../static/images/jwb.jpg"),
+    //         buddyName: "Wenbo Jiang",
+    //       },
+    //     ];
+    //   } else if (this.activeName == "second") {
+    //     arr = [
+    //       {
+    //         buddyImg: require("../../../static/images/peter.jpg"),
+    //         buddyName: "Huiyu Zhao",
+    //       },
+    //     ];
+    //   } else if (this.activeName == "third") {
+    //     arr = [
+    //       {
+    //         buddyImg: require("../../../static/images/jwb.jpg"),
+    //         buddyName: "Wenbo Jiang",
+    //       },
+    //     ];
+    //   } else if (this.activeName == "fourth") {
+    //     arr = [
+    //       {
+    //         buddyImg: require("../../../static/images/peter.jpg"),
+    //         buddyName: "Huiyu Zhao",
+    //       },
+    //     ];
+    //   }
+    //   return arr;
+    // },
     sConditionName: function () {
       if (this.searchForm.buddyType == 1) {
         return "Concentration";
