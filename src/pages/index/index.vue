@@ -453,6 +453,10 @@ export default {
     getUserInfo_callback(response){
       console.log(response);
       this.userInfoForm["email"] = this.$cookies.get('user_email');
+      this.userInfoForm["isFindingBuddy"] = response.IsFindingBuddy;
+      this.userInfoForm["isFindingMate"] = response.IsFindingMate;
+      this.isOpen = response.IsFindingBuddy;
+      this.isOpenForStudy = response.IsFindingMate;
       if (response.CourseTaking.length == 0){
         this.userCourseList = [
           {"label": "Please press + button to add course", "name": "first"}
@@ -514,7 +518,8 @@ export default {
         type: "info",
       })
         .then(() => {
-          console.log(1111);
+          console.log(11111);
+          this.updateUserInfo();
         })
         .catch(() => {
           this.isOpen = !this.isOpen;
@@ -528,6 +533,7 @@ export default {
       })
         .then(() => {
           console.log(1111);
+          this.updateUserInfo();
         })
         .catch(() => {
           this.isOpenForStudy = !this.isOpenForStudy;
@@ -541,6 +547,21 @@ export default {
       let temp_email = this.userInfoForm.email
       getUserInfo({"user_email":temp_email},this.getUserInfo_callback);
     },
+    updateUserInfo(){
+      var i;
+      var temp_course_id = [];
+      for (i = 0; i < this.addCoursesSelectors.length; i++) {
+        temp_course_id.push(this.existingCourseFormatToId[this.addCoursesSelectors[i]]);
+      }
+      this.userInfoForm.courseTaking = temp_course_id;
+
+      this.userInfoForm.isFindingBuddy = this.isOpen;
+      this.userInfoForm.isFindingMate = this.isOpenForStudy;
+
+      console.log(this.userInfoForm.courseTaking);
+
+      setUserInfo(this.userInfoForm, this.setUserInfo_callback);
+    },
     confirmAddCourse() {
       this.$confirm("Are You Sure To Add The Course?", "Tips", {
         confirmButtonText: "Yes",
@@ -551,17 +572,7 @@ export default {
           console.log("yes");
           this.addCoursesDialogFlag = false;
 
-          var i;
-          var temp_course_id = [];
-          for (i = 0; i < this.addCoursesSelectors.length; i++) {
-            temp_course_id.push(this.existingCourseFormatToId[this.addCoursesSelectors[i]]);
-          }
-
-          this.userInfoForm.courseTaking = temp_course_id;
-
-          console.log(this.userInfoForm.courseTaking);
-
-          setUserInfo(this.userInfoForm, this.setUserInfo_callback);
+          this.updateUserInfo();
 
         })
         .catch(() => {
