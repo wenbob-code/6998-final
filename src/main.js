@@ -19,6 +19,24 @@ Vue.config.productionTip = false
 Vue.prototype.utils = utils
 window.Vue = Vue;
 
+router.beforeEach((to, from, next) => {
+  window.document.title = to.meta.title
+  if (to.meta.requireAuth) {
+    if (VueCookies.get('user_email')) {
+      next()
+    } else {
+      next({
+        path: '/',
+        query: {redirect: to.fullPath}
+      })
+    }
+  } else {
+    next()
+  }
+}
+)
+
+
 new Vue({
     router,
     store,

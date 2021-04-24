@@ -493,6 +493,7 @@ export default {
     },
     // 跳转登录界面
     goSignInPage() {
+      this.$cookies.remove('user_email');
       this.$router.push("/login");
     },
     //  日历切换月份

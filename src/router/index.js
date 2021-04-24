@@ -38,11 +38,17 @@ export default new Router({
             path: "/index",
             name: "index",
             component: index,
+            meta: {
+                requireAuth: true
+            }
         },
         {
             path: '/user/user',
             name: "user",
-            component: user
+            component: user,
+            meta: {
+                requireAuth: true
+            }
         },
         {
             path: '/login',
@@ -57,7 +63,10 @@ export default new Router({
         {
             path: '/homePage',
             name: "homePage",
-            component: homePage
+            component: homePage,
+            meta: {
+                requireAuth: true
+            }
         },
     ]
 });
