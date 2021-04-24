@@ -305,7 +305,7 @@
 
 <script>
 import { FunctionalCalendar } from "vue-functional-calendar";
-import {getCourse, getAllExistingCourse, getUserInfo} from "@/api/api";
+import {getCourse, getAllExistingCourse, getUserInfo, setUserInfo} from "@/api/api";
 export default {
   name: "index",
   components: {
@@ -380,58 +380,12 @@ export default {
       ],
       list: [],
       existingCourse: [],
-      states: [
-        "Alabama",
-        "Alaska",
-        "Arizona",
-        "Arkansas",
-        "California",
-        "Colorado",
-        "Connecticut",
-        "Delaware",
-        "Florida",
-        "Georgia",
-        "Hawaii",
-        "Idaho",
-        "Illinois",
-        "Indiana",
-        "Iowa",
-        "Kansas",
-        "Kentucky",
-        "Louisiana",
-        "Maine",
-        "Maryland",
-        "Massachusetts",
-        "Michigan",
-        "Minnesota",
-        "Mississippi",
-        "Missouri",
-        "Montana",
-        "Nebraska",
-        "Nevada",
-        "New Hampshire",
-        "New Jersey",
-        "New Mexico",
-        "New York",
-        "North Carolina",
-        "North Dakota",
-        "Ohio",
-        "Oklahoma",
-        "Oregon",
-        "Pennsylvania",
-        "Rhode Island",
-        "South Carolina",
-        "South Dakota",
-        "Tennessee",
-        "Texas",
-        "Utah",
-        "Vermont",
-        "Virginia",
-        "Washington",
-        "West Virginia",
-        "Wisconsin",
-        "Wyoming",
-      ],
+      existingCourseFormatToId: {},
+      existingCourseInfoById: {},
+      userInfoForm: {
+        purpose: "index_update",
+        courseTaking: []
+      },
       isShowFindBuddyDialog: false,
       searchForm: {
         buddyType: "",
@@ -475,12 +429,20 @@ export default {
 
   methods: {
     getcourse_callback(allCourseResponse){
+      console.log(allCourseResponse.body);
+
       var i;
       for (i = 0; i < allCourseResponse.body.length; i++) {
         var course_format = allCourseResponse.body[i].course_no + " - " + allCourseResponse.body[i].course_name +
-            " - " + allCourseResponse.body[i].professor
-        console.log(course_format);
+            " - " + allCourseResponse.body[i].professor + " - section " + allCourseResponse.body[i].section;
+        // console.log(course_format);
         this.existingCourse.push(course_format);
+        this.existingCourseFormatToId[course_format] = allCourseResponse.body[i].course_id;
+        this.existingCourseInfoById[allCourseResponse.body[i].course_id] = {
+          "course_no":allCourseResponse.body[i].course_no,
+          "course_format": course_format
+        };
+
       }
       this.list = this.existingCourse.map(item => {
         return {
@@ -490,13 +452,34 @@ export default {
     },
     getUserInfo_callback(response){
       console.log(response);
+      this.userInfoForm["email"] = this.$cookies.get('user_email');
       if (response.CourseTaking.length == 0){
         this.userCourseList = [
           {"label": "Please press + button to add course", "name": "first"}
         ]
       }
       else {
-        this.userCourseList = response.CourseTaking
+
+        var i;
+        this.userCourseList = [];
+        this.addCoursesSelectors = [];
+        for (i = 0; i < response.CourseTaking.length; i++) {
+          if (i == 0){
+            this.userCourseList.push(
+                {"label": this.existingCourseInfoById[response.CourseTaking[i]].course_no, "name": "first"}
+            );
+          }
+          else{
+            this.userCourseList.push(
+                {"label": this.existingCourseInfoById[response.CourseTaking[i]].course_no}
+            );
+          }
+
+          this.addCoursesSelectors.push(this.existingCourseInfoById[response.CourseTaking[i]].course_format);
+        }
+
+
+        // this.userCourseList = response.CourseTaking;
       }
       console.log(this.userCourseList);
     },
@@ -553,6 +536,11 @@ export default {
     showAddCoursesDialog() {
       this.addCoursesDialogFlag = true;
     },
+    setUserInfo_callback(){
+      // this function is used as call back
+      let temp_email = this.userInfoForm.email
+      getUserInfo({"user_email":temp_email},this.getUserInfo_callback);
+    },
     confirmAddCourse() {
       this.$confirm("Are You Sure To Add The Course?", "Tips", {
         confirmButtonText: "Yes",
@@ -562,6 +550,19 @@ export default {
         .then(() => {
           console.log("yes");
           this.addCoursesDialogFlag = false;
+
+          var i;
+          var temp_course_id = [];
+          for (i = 0; i < this.addCoursesSelectors.length; i++) {
+            temp_course_id.push(this.existingCourseFormatToId[this.addCoursesSelectors[i]]);
+          }
+
+          this.userInfoForm.courseTaking = temp_course_id;
+
+          console.log(this.userInfoForm.courseTaking);
+
+          setUserInfo(this.userInfoForm, this.setUserInfo_callback);
+
         })
         .catch(() => {
           console.log("no");
@@ -596,7 +597,7 @@ export default {
       if (query !== "") {
         setTimeout(() => {
           this.courseList = this.list.filter((item) => {
-            console.log(this.list)
+            // console.log(this.list)
             return item.label.toLowerCase().indexOf(query.toLowerCase()) > -1;
           });
         }, 200);
