@@ -204,7 +204,7 @@
 </template>
 <script>
 // import apigClientFactory from '../../apiGateway-js-sdk/apigClient'
-import {getCourse, getAllExistingCourse, getUserInfo, setUserInfo,putPhoto} from "@/api/api";
+import {getCourse, getOldCourse, getUserInfo, setUserInfo,putPhoto} from "@/api/api";
 export default {
   name: "homePage",
   data() {
@@ -309,7 +309,7 @@ export default {
 
     },
     uploadPhoto_callback(photoName){
-      this.userInfoForm.imageUrl = "https://coms6998-user-photos.amazonaws.com/"+photoName;
+      this.userInfoForm.imageUrl = "https://coms6998-user-photos.s3.amazonaws.com/"+photoName;
     },
     showDialog() {
       this.editDialogFlag = true;
@@ -386,7 +386,7 @@ export default {
   },
   created() {
     // this.showDialog();
-    getAllExistingCourse({},this.getcourse_callback);
+    getOldCourse({},this.getcourse_callback);
     this.init();
   },
   mounted() {
