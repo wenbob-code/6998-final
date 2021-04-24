@@ -56,7 +56,8 @@
           <div class="title mb20">
             <span>Group</span>
             <div class="icons">
-              <i class="el-icon-circle-plus font30 mr10 cp"></i>
+              <i class="el-icon-circle-plus font30 mr10 cp"
+                 @click="showAddGroupDialog"></i>
               <i class="el-icon-delete font30 cp"></i>
             </div>
           </div>
@@ -146,7 +147,8 @@
           <div class="colorfff font20 mb20 flex_spaceBetween">
             <span>Meeting</span>
             <div class="icons">
-              <i class="el-icon-circle-plus font20 mr10 cp"></i>
+              <i class="el-icon-circle-plus font20 mr10 cp"
+                 @click="showAddMeetingDialog"></i>
               <i class="el-icon-delete font20 cp"></i>
             </div>
           </div>
@@ -166,6 +168,87 @@
         </div>
       </div>
     </div>
+
+    <!-- addGroupDialog -->
+    <el-dialog title="Add Group" :visible.sync="addGroupDialogFlag">
+      <el-form :model="userInfoForm" ref="userInfoForm" label-width="100px">
+        <el-form-item label="Group Name">
+          <el-input
+              v-model="userInfoForm.name"
+              placeholder="Enter group Name"
+              class="w200"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="url">
+          <el-input
+              v-model="userInfoForm.soc"
+              placeholder="Enter Your City Or State"
+              class="w200 mr10"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="QR code">
+          <el-upload
+              class="avatar-uploader"
+              action="string"
+              accept="image/jpeg,image/png,image/jpg"
+              :show-file-list="false"
+              :http-request="uploadQRImage"
+              :on-success="handleAvatarSuccess"
+              :before-upload="beforeAvatarUpload"
+          >
+            <img
+                v-if="userInfoForm.imageUrl"
+                :src="userInfoForm.imageUrl"
+                class="avatar"
+            />
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addGroupDialogFlag = false">Cancel</el-button>
+        <el-button type="primary" @click="confirmAddGroup">Done</el-button>
+      </span>
+    </el-dialog>
+    <!-- addMeetingDialog -->
+    <el-dialog title="Add Meeting" :visible.sync="addMeetingDialogFlag">
+      <el-form :model="userInfoForm" ref="userInfoForm" label-width="100px">
+        <el-form-item label="Description">
+          <el-input
+              v-model="userInfoForm.name"
+              placeholder="Enter decription"
+              class="w200"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="URL">
+          <el-input
+              v-model="userInfoForm.soc"
+              placeholder="Enter Your City Or State"
+              class="w200 mr10"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="Time">
+          <el-input
+              v-model="userInfoForm.soc"
+              placeholder="Enter meeting time"
+              class="w200 mr10"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="Location">
+          <el-input
+              v-model="userInfoForm.soc"
+              placeholder="Enter location"
+              class="w200 mr10"
+          ></el-input>
+        </el-form-item>
+
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addMeetingDialogFlag = false">Cancel</el-button>
+        <el-button type="primary" @click="confirmAddMeeting">Done</el-button>
+      </span>
+    </el-dialog>
+
     <!-- groupDialog -->
     <el-dialog :visible.sync="groupDialogFlag" class="groupDialog" width="25%">
       <img :src="groupQrCode" class="groupQrCode" />
@@ -305,7 +388,7 @@
 
 <script>
 import { FunctionalCalendar } from "vue-functional-calendar";
-import {getCourse, getAllExistingCourse, getUserInfo, setUserInfo, getCourseInfo} from "@/api/api";
+import {getCourse, getAllExistingCourse, getUserInfo, setUserInfo, getCourseInfo, putPhoto} from "@/api/api";
 export default {
   name: "index",
   components: {
@@ -367,6 +450,8 @@ export default {
       jwbDialogFlag: false,
       isOpen: {},
       isOpenForStudy: {},
+      addGroupDialogFlag: false,
+      addMeetingDialogFlag: false,
       addCoursesDialogFlag: false,
       delCoursesDialogFlag: false,
       addCoursesSelectors: [],
@@ -500,7 +585,7 @@ export default {
           }
       );
 
-      // console.log(this.$ref.container);
+      console.log(this);
 
     },
 
@@ -519,8 +604,24 @@ export default {
         getUserInfo({"user_email":buddies[i]},this.getBuddyInfo_callback);
       }
     },
+    confirmAddGroup(){
+      this.addGroupDialogFlag = false;
+    },
 
+    confirmAddMeeting(){
+      this.addMeetingDialogFlag = false;
+    },
 
+    handleAvatarSuccess(response, file, fileList) {
+      console.log(response, file, fileList);
+    },
+    beforeAvatarUpload(file) {
+      console.log(file);
+    },
+
+    showAddMeetingDialog(){
+      this.addMeetingDialogFlag = true;
+    },
 
     //  跳转个人中心
     goPersonalCenter() {
@@ -579,6 +680,9 @@ export default {
     showAddCoursesDialog() {
       this.addCoursesDialogFlag = true;
     },
+    showAddGroupDialog(){
+      this.addGroupDialogFlag = true;
+    },
     setUserInfo_callback(){
       // this function is used as call back
       let temp_email = this.userInfoForm.email
@@ -598,6 +702,21 @@ export default {
       console.log(this.userInfoForm.courseTaking);
 
       setUserInfo(this.userInfoForm, this.setUserInfo_callback);
+    },
+    uploadQRImage(param){
+      const formData = new FormData();
+      formData.append('file', param.file);
+      console.log(param.file);
+      var reader = new FileReader();
+      var callback = this.uploadPhoto_callback
+      reader.onloadend = function() {
+        var data = reader.result.split(",")[1]
+        putPhoto(data,{
+          "Content-Type": param.file.type+';base64',
+          "filesuffix": param.file.type.split('/')[1],
+        },callback);
+      }
+      reader.readAsDataURL(param.file);
     },
     confirmAddCourse() {
       this.$confirm("Are You Sure To Add The Course?", "Tips", {
