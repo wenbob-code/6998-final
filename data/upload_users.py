@@ -44,6 +44,31 @@ SKILL = [
     "telecommunications engineering"
 ]
 
+CS_CONCENTRATIONS = [
+    "Theory",
+    "Artificial Intelligence",
+    "Machine Learning",
+    "Vision & Robotics",
+    "Networking",
+    "Computer Engineering",
+    "Software Systems",
+    "Computational Biology",
+    "Security & Privacy",
+    "NLP & Speech"
+]
+
+EE_CONCENTRATIONS = [
+    "Data-Driven Analysis and Computation",
+    "Networking",
+    "Wireless and Mobile Communications",
+    "Integrated Circuits and Systems",
+    "Smart Electric Energy",
+    "Systems Biology and Neuroengineering",
+    "Lightwave (Photonics) Engineering",
+    "Microelectronic Devices",
+    "Electrical Engineering"
+]
+
 USER_PHOTO_BUCKET = "coms6998-user-photos"
 MALE_PHOTO_NUM = 1100
 FEMALE_PHOTO_NUM = 1050
@@ -207,6 +232,13 @@ def get_skills():
     return skills
 
 
+def get_concentration(major):
+    if major == "Computer Science":
+        return random.choice(CS_CONCENTRATIONS)
+    else:
+        return random.choice(EE_CONCENTRATIONS)
+
+
 if __name__ == "__main__":
     parse_course()
 
@@ -217,7 +249,7 @@ if __name__ == "__main__":
     # Upload male user
     gender = "male"
     m = 0
-    while m < 10:
+    while m < 5:
         first_name, last_name = generate_name(gender)
         city, country = generate_city_country()
         uni, email = generate_uni_email(first_name, last_name)
@@ -225,6 +257,8 @@ if __name__ == "__main__":
         c_taking, c_taken = get_courses()
         buddy, mate = finding_buddy_mate(c_taking)
         skills = get_skills()
+        major = random.choice(MAJOR)
+        concentration = get_concentration(major)
         m += 1
 
         item = {
@@ -238,8 +272,9 @@ if __name__ == "__main__":
             "CourseTaking": c_taking,
             "FindingBuddy": buddy,
             "FindingMate": mate,
-            "Major": random.choice(MAJOR),
-            "Skill": skills
+            "Major": major,
+            "Skill": skills,
+            "Concentration": concentration
         }
         response = table.put_item(Item=item)
 
