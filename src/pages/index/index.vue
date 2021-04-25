@@ -408,17 +408,18 @@
             :label="sConditionName"
             v-if="searchForm.buddyType != ''"
           >
-            <el-select v-model="searchForm.sCondition">
-              <el-option
-                v-for="(item, index) in searchForm.sConditionList"
-                :key="index"
-                :label="item.name"
-                :value="item.value"
-              ></el-option>
-            </el-select>
+            <el-input v-model="searchForm.sCondition">
+<!--              <el-option-->
+<!--                v-for="(item, index) in searchForm.sConditionList"-->
+<!--                :key="index"-->
+<!--                :label="item.name"-->
+<!--                :value="item.value"-->
+<!--              ></el-option>-->
+            </el-input>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary">Search</el-button>
+            <el-button type="primary"
+                       @click="searchBuddy(searchForm.buddyType, searchForm.sCondition)">Search</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -445,7 +446,7 @@
 
 <script>
 import { FunctionalCalendar } from "vue-functional-calendar";
-import {getCourse, getAllExistingCourse, getUserInfo, setUserInfo, getCourseInfo, putPhoto, setCourseInfo} from "@/api/api";
+import {getCourse, getAllExistingCourse, getUserInfo, setUserInfo, getCourseInfo, putPhoto, setCourseInfo, getBuddyInfo} from "@/api/api";
 export default {
   name: "index",
   components: {
@@ -665,7 +666,6 @@ export default {
       console.log(this.deletecourseList);
       console.log(this.courseList);
       console.log(this.deletecourseList);
-
     },
     getBuddyInfo_callback(response){
       console.log(response);
@@ -679,7 +679,36 @@ export default {
 
     },
 
+    searchBuddy(type, key_word){
+      console.log(type, key_word);
+      console.log(this.searchForm);
+      var temp_buddy_type = "";
+      if (type == 1){
+        temp_buddy_type = "team_mate";
+      }
+      else{
+        temp_buddy_type = "study_buddy";
+      }
+      getBuddyInfo({}, temp_buddy_type, this.activeName, key_word, this.searchBuddy_callback);
+    },
 
+    searchBuddy_callback(response){
+      console.log(response);
+
+      var i;
+      this.tableData = [];
+      for (i = 0; i < response.body.length; i++) {
+        this.tableData.push(
+            {
+              id: i,
+              headImg: response.body[i].S3Key,
+              name: response.body[i].FirstName + " " + response.body[i].LastName,
+              major: response.body[i].Major,
+              email: response.body[i].Email
+            }
+        );
+      }
+    },
     getCourseInfo_callback(response){
       console.log(response);
 
@@ -925,7 +954,8 @@ export default {
       reader.readAsDataURL(param.file);
     },
     getCourseClick() {
-      getCourseInfo({}, this.activeName, this.getCourseInfo_callback)
+      getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
+
     },
     confirmAddCourse() {
       this.$confirm("Are You Sure To Add The Course?", "Tips", {
@@ -1043,6 +1073,7 @@ export default {
     },
     checkDetail(row) {
       console.log(row);
+
     },
     remoteMethod(query) {
       if (query !== "") {
@@ -1063,7 +1094,10 @@ export default {
     getAllExistingCourse({},this.getcourse_callback).then(()=>{
         let user_email = this.$cookies.get('user_email');
         getUserInfo({user_email},this.getUserInfo_callback).then(()=>{
-          getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
+          console.log(this.activeName);
+          if (this.activeName != "first"){
+            getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
+          }
         });
     });
     // this.$nextTick(function () {
@@ -1198,7 +1232,7 @@ export default {
     // },
     sConditionName: function () {
       if (this.searchForm.buddyType == 1) {
-        return "Concentration";
+        return "Requirements";
       } else if (this.searchForm.buddyType == 2) {
         return "On/Off Line";
       } else {

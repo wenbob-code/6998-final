@@ -36,6 +36,13 @@ export async function getCourseInfo(data = {}, course_id, callback) {
     callback(result);
 }
 
+export async function getBuddyInfo(data = {}, buddy_type, course_id, key_word, callback) {
+    // this function will get all existing courses from database
+    var searchBuddyUrl = '/coursebuddy?course_id='+course_id + "&buddy_type=" + buddy_type + "&search_key_word=" + key_word;
+    const result = await Request('/coursebuddy?course_id='+course_id + "&buddy_type=" + buddy_type + "&search_key_word=" + key_word, {methods: 'GET', data});
+    callback(result);
+}
+
 export async function setUserInfo(data = {}, callback) {
     // this function will set user's data to database
     await Request('/myinfo', {methods: 'POST', data});
