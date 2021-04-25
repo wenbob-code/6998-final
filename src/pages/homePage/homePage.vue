@@ -27,7 +27,7 @@
             <el-col :span="12" class="font30">{{ userName }}</el-col>
           </el-row>
           <el-row class="title mb10">
-            <el-col :span="12" class="font18">{{ title }}</el-col>
+            <el-col :span="12" class="font18">{{ major }}</el-col>
           </el-row>
           <div class="address mb10">
             <p class="font18">{{ address }}</p>
@@ -78,6 +78,13 @@
           <el-input
             v-model="userInfoForm.name"
             placeholder="Enter Your Name"
+            class="w200"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="Major">
+          <el-input
+            v-model="userInfoForm.major"
+            placeholder="Enter Concentration"
             class="w200"
           ></el-input>
         </el-form-item>
@@ -211,7 +218,7 @@ export default {
     return {
       isEdit: false,
       userName: "",
-      title: "",
+      major: "",
       address: "",
       emailId: "",
       phoneNum: "",
@@ -227,6 +234,7 @@ export default {
       userInfoForm: {
         purpose: "homepage_update",
         name: "",
+        major: "",
         concentration: "",
         soc: "",
         country: "",
@@ -280,12 +288,14 @@ export default {
       this.linkedInId = userInfoResponse.LinkedIn;
       this.userName = userInfoResponse.FirstName + " " + userInfoResponse.LastName;
       this.address = userInfoResponse.CityOrState + "  " + userInfoResponse.Country;
-      this.title = userInfoResponse.Major;
+      this.major = userInfoResponse.Major;
+      this.concentration = userInfoResponse.Concentration;
       this.skillList = userInfoResponse.Skill || [];
       // console.log(this.skillList);
       this.courseTakenList = userInfoResponse.CourseTaken;
       this.userInfoForm.name = this.userName;
-      this.userInfoForm.concentration = this.title;
+      this.userInfoForm.major = this.major;
+      this.userInfoForm.concentration = this.concentration;
       this.userInfoForm.imageUrl = this.imageUrl
       this.userInfoForm.country = userInfoResponse.Country;
       this.userInfoForm.email = this.emailId;
