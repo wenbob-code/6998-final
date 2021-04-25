@@ -172,18 +172,18 @@
 
     <!-- addGroupDialog -->
     <el-dialog title="Add Group" :visible.sync="addGroupDialogFlag">
-      <el-form :model="userInfoForm" ref="userInfoForm" label-width="100px">
+      <el-form :model="updateGroupObject" ref="updateGroupObject" label-width="100px">
         <el-form-item label="Group Name">
           <el-input
-              v-model="userInfoForm.name"
+              v-model="updateGroupObject.group_name"
               placeholder="Enter group Name"
               class="w200"
           ></el-input>
         </el-form-item>
         <el-form-item label="url">
           <el-input
-              v-model="userInfoForm.soc"
-              placeholder="Enter Your City Or State"
+              v-model="updateGroupObject.url"
+              placeholder="Enter the group url"
               class="w200 mr10"
           ></el-input>
         </el-form-item>
@@ -198,8 +198,8 @@
               :before-upload="beforeAvatarUpload"
           >
             <img
-                v-if="userInfoForm.imageUrl"
-                :src="userInfoForm.imageUrl"
+                v-if="updateGroupObject.imageUrl"
+                :src="updateGroupObject.imageUrl"
                 class="avatar"
             />
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
@@ -448,7 +448,8 @@ export default {
       updateGroupObject:{
         purpose: "",
         group_name: "",
-        URL: "",
+        url: "",
+        imageUrl: "",
         owner: "",
         course_id: ""
       },
@@ -671,8 +672,13 @@ export default {
     confirmAddGroup(){
       this.addGroupDialogFlag = false;
       this.updateGroupObject.purpose = "add_new_group";
-      this.updateGroupObject.host = this.$cookies.get('user_email');
+      this.updateGroupObject.owner = this.$cookies.get('user_email');
       this.updateGroupObject.course_id = this.activeName;
+      console.log(this.updateGroupObject);
+      setCourseInfo(this.updateGroupObject, this.confirmAddGroup_callback);
+    },
+    confirmAddGroup_callback(response){
+      console.log(response);
     },
 
     confirmAddMeeting(){
