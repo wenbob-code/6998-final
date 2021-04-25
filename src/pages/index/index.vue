@@ -275,20 +275,28 @@
     <el-dialog :visible.sync="buddyDialogFlag" class="buddyDialog">
       <!-- basicinfo -->
       <div class="basicInfo mb20">
-        <img src="../../../static/images/peter.jpg" class="buddyImg mr20" />
+        <img :src="buddyDialogInfo.buddyImg" class="buddyImg mr20" />
         <div class="info font20 lh25">
-          <p>Huiyu Zhao</p>
-          <p>Electrical Engineering (2nd semester)</p>
-          <p>Email: hz2691@columbia.edu</p>
+          <p>{{ buddyDialogInfo.buddyName }}</p>
+          <p>{{ buddyDialogInfo.buddyMajor }}</p>
+          <p>{{ buddyDialogInfo.buddyEmail }}</p>
         </div>
+<!--        <img src="" class="buddyImg mr20" />-->
+<!--        <div class="info font20 lh25">-->
+<!--          <p>a</p>-->
+<!--          <p>a</p>-->
+<!--          <p>a</p>-->
+<!--        </div>-->
       </div>
       <!-- course-learning-info -->
       <div class="courseLearning-info">
         <p class="font20 title mb10">Course Learned:</p>
-        <p class="lh25 pdl5">CSEE 4119 W COMPUTER NETWORKS</p>
-        <p class="lh25 pdl5">EECS 4764 E IoT - INTELLIG & CONNECTE</p>
-        <p class="lh25 pdl5">EEOR 4650 E CONVEX OPTIMIZATION ELCT</p>
-        <p class="lh25 pdl5">ELEN 6761 E COMPUTER COMMUNCATION NET</p>
+        <p class="lh25 pdl5" v-for="(course,index) in buddyDialogInfo.buddyCourseTaken" :key="index">
+        {{course}}</p>
+<!--        <p class="lh25 pdl5">CSEE 4119 W COMPUTER NETWORKS</p>-->
+<!--        <p class="lh25 pdl5">EECS 4764 E IoT - INTELLIG & CONNECTE</p>-->
+<!--        <p class="lh25 pdl5">EEOR 4650 E CONVEX OPTIMIZATION ELCT</p>-->
+<!--        <p class="lh25 pdl5">ELEN 6761 E COMPUTER COMMUNCATION NET</p>-->
       </div>
     </el-dialog>
     <!-- jwbDialog -->
@@ -339,7 +347,7 @@
       <p class="mb30 font30">Delete Course</p>
       <el-select v-model="delCoursesSelectors" placeholder="Select">
         <el-option
-          v-for="(item, index) in courseList"
+          v-for="(item, index) in deletecourseList"
           :key="index"
           :label="item.name"
           :value="item.courseNo"
@@ -484,6 +492,7 @@ export default {
       groupQrCode: require("../../../static/images/qrCodeOne.png"),
       buddyDialogFlag: false,
       jwbDialogFlag: false,
+      buddyDialogInfo: {},
       isOpen: {},
       isOpenForStudy: {},
       addGroupDialogFlag: false,
@@ -492,6 +501,7 @@ export default {
       addCoursesDialogFlag: false,
       delCoursesDialogFlag: false,
       addCoursesSelectors: [],
+      deletecourseList: [],
       delCoursesSelectors: "",
       delMeetingSelectors: "",
       courseList: [],
@@ -583,35 +593,42 @@ export default {
       if (!response.CourseTaking || response.CourseTaking.length == 0){
         this.userCourseList = [
           {"label": "Please press + button to add course", "name": "first"}
-        ]
+        ];
+        this.isOpen = {"first": false};
+        this.isOpenForStudy = {"first": false};
       }
       else {
 
         var i;
         this.userCourseList = [];
         this.addCoursesSelectors = [];
+        this.deletecourseList = [];
+        console.log(this.existingCourseInfoById);
+        console.log(response.CourseTaking);
         for (i = 0; i < response.CourseTaking.length; i++) {
-          if (i == 0){
             this.userCourseList.push(
                 {"label": this.existingCourseInfoById[response.CourseTaking[i]].course_no, "name": response.CourseTaking[i]}
             );
-          }
-          else{
-            this.userCourseList.push(
-                {"label": this.existingCourseInfoById[response.CourseTaking[i]].course_no, "name": response.CourseTaking[i]}
-            );
-          }
-
-          this.addCoursesSelectors.push(this.existingCourseInfoById[response.CourseTaking[i]].course_format);
+            this.deletecourseList.push({"courseNo": response.CourseTaking[i], "name": this.existingCourseInfoById[response.CourseTaking[i]].course_no});
         }
-
 
         // this.userCourseList = response.CourseTaking;
       }
-      console.log(this.userCourseList);
-      if (this.activeName === "" || this.activeName == 0) {
+      var contain_activeName = false;
+      for (i = 0; i < this.userCourseList.length; i++) {
+        if (this.activeName === this.userCourseList[i].name){
+          contain_activeName = true;
+          break;
+        }
+      }
+      if (this.activeName === "" || this.activeName == 0 || contain_activeName === false) {
         this.activeName = this.userCourseList[0].name;
       }
+      console.log(this.userCourseList);
+      console.log(this.deletecourseList);
+      console.log(this.courseList);
+      console.log(this.deletecourseList);
+
     },
     getBuddyInfo_callback(response){
       console.log(response);
@@ -635,8 +652,17 @@ export default {
       // reset buddy list
       this.buddyList = [];
       for (i = 0; i < buddies.length; i++) {
-        console.log(buddies[i])
-        getUserInfo({"user_email":buddies[i]},this.getBuddyInfo_callback);
+        this.buddyList.push(
+            {
+              buddyImg: buddies[i].S3Key,
+              buddyName: buddies[i].FirstName + " " + buddies[i].LastName,
+              buddyMajoy: buddies[i].Major,
+              buddyEmail: buddies[i].Email,
+              buddyCourseTaken: buddies[i].CourseTaken
+            }
+        );
+        // console.log(buddies[i])
+        // getUserInfo({"user_email":buddies[i]},this.getBuddyInfo_callback);
       }
 
       // reset meeting list
@@ -740,11 +766,8 @@ export default {
     },
     //  展示buddy信息弹窗
     showBuddyDialog(index) {
-      if (index == 0) {
         this.buddyDialogFlag = true;
-      } else if (index == 1) {
-        this.jwbDialogFlag = true;
-      }
+        this.buddyDialogInfo = this.buddyList[index];
     },
     changeStatus(e) {
       this.$confirm("Are You Want To Update Your Status?", "Tips", {
@@ -788,16 +811,25 @@ export default {
     },
     updateUserInfo(){
       var i;
-      var temp_course_id = [];
+      this.userInfoForm.courseTaking = [];
+      console.log(this.addCoursesSelectors);
       for (i = 0; i < this.addCoursesSelectors.length; i++) {
-        temp_course_id.push(this.existingCourseFormatToId[this.addCoursesSelectors[i]]);
+        this.userInfoForm.courseTaking.push(this.existingCourseFormatToId[this.addCoursesSelectors[i]]);
       }
-      this.userInfoForm.courseTaking = temp_course_id;
+
+      for (i = 0; i < this.userCourseList.length; i++) {
+        if (this.userCourseList[i].name != "first"){
+          this.userInfoForm.courseTaking.push(this.userCourseList[i].name);
+        }
+      }
+      console.log(this.userInfoForm.courseTaking);
+      this.addCoursesSelectors = [];
+      // this.userInfoForm.courseTaking += temp_course_id;
 
       this.userInfoForm.FindingBuddy = this.isOpen;
       this.userInfoForm.FindingMate = this.isOpenForStudy;
 
-      console.log(this.userInfoForm.courseTaking);
+      // console.log(this.userInfoForm.courseTaking);
 
       setUserInfo(this.userInfoForm, this.setUserInfo_callback);
     },
@@ -837,6 +869,24 @@ export default {
     showDeleteCourseDialog() {
       this.delCoursesDialogFlag = true;
     },
+    deleteCourse(){
+      var i;
+      console.log(this.userCourseList);
+      this.userInfoForm.courseTaking = [];
+      for (i = 0; i < this.userCourseList.length; i++) {
+        if (this.userCourseList[i].name != this.delCoursesSelectors && this.userCourseList[i].name != "first"){
+          this.userInfoForm.courseTaking.push(this.userCourseList[i].name);
+        }
+      }
+      // this.userInfoForm.courseTaking += temp_course_id;
+
+      this.userInfoForm.FindingBuddy = this.isOpen;
+      this.userInfoForm.FindingMate = this.isOpenForStudy;
+
+      // console.log(this.userInfoForm.courseTaking);
+      this.delCoursesSelectors = "";
+      setUserInfo(this.userInfoForm, this.setUserInfo_callback);
+    },
     confirmDeleteCourse() {
       this.$confirm("Are You Sure To Delete The Course?", "Tips", {
         confirmButtonText: "Yes",
@@ -844,7 +894,8 @@ export default {
         type: "warning",
       })
         .then(() => {
-          console.log("yes");
+          console.log(this.delCoursesSelectors);
+          this.deleteCourse();
           this.delCoursesDialogFlag = false;
         })
         .catch(() => {
@@ -906,13 +957,18 @@ export default {
 
   created(){
     // RegisterUser();
-    getAllExistingCourse({},this.getcourse_callback);
+    getAllExistingCourse({},this.getcourse_callback).then(()=>{
+        let user_email = this.$cookies.get('user_email');
+        getUserInfo({user_email},this.getUserInfo_callback);
+    });
+    // this.$nextTick(function () {
+    //     let user_email = this.$cookies.get('user_email');
+    //     getUserInfo({user_email},this.getUserInfo_callback);
+    // })
     // this.userCourseList =  [
     //   {"label": "COMS 4111", "name": "first"},
     //   {"label": "COMS 6998", "name": "second"}
     // ];
-    let user_email = this.$cookies.get('user_email')
-    getUserInfo({user_email},this.getUserInfo_callback)
 
     // this.existingCourse.push("diannao");
   },

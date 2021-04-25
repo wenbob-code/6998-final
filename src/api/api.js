@@ -14,6 +14,7 @@ export async function getAllExistingCourse(data = {}, callback) {
     // this function will get all existing courses from database
     const result = await Request('/course', {methods: 'GET', data});
     callback(result);
+    return Promise.resolve()
 }
 
 export async function getOldCourse(data = {}, callback) {
