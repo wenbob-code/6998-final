@@ -29,7 +29,7 @@
     </div>
     <!-- 顶部导航栏 -->
     <div class="tabs flex_alignCenter">
-      <el-tabs v-model="activeName" class="w73">
+      <el-tabs v-model="activeName" class="w73" @tab-click="getCourseClick">
         <el-tab-pane
             v-for="(item, index) in userCourseList"
             :key="index"
@@ -58,7 +58,8 @@
             <div class="icons">
               <i class="el-icon-circle-plus font30 mr10 cp"
                  @click="showAddGroupDialog"></i>
-              <i class="el-icon-delete font30 cp"></i>
+              <i class="el-icon-delete font30 cp"
+                 @click="showDeleteGroupDialog"></i>
             </div>
           </div>
           <div class="groupList">
@@ -66,7 +67,7 @@
               class="group-item"
               v-for="(item, index) in groupList"
               :key="index"
-              @click="showGroupDialog"
+              @click="showGroupDialog(index)"
             >
               <img
                 :src="item.groupImg"
@@ -263,6 +264,23 @@
       </span>
     </el-dialog>
 
+    <!-- deleteGroupDialog -->
+    <el-dialog :visible.sync="deleteGroupDialogFlag">
+      <p class="mb30 font30">Delete Group</p>
+      <el-select v-model="delGroupSelectors" placeholder="Select">
+        <el-option
+            v-for="(item, index) in deleteGroupList"
+            :key="index"
+            :label="item.groupName"
+            :value="item.groupId"
+        ></el-option>
+      </el-select>
+      <span slot="footer">
+        <el-button type="primary" @click="confirmDeleteGroup(delGroupSelectors)">Done</el-button>
+        <el-button @click="deleteGroupDialogFlag = false">Cancel</el-button>
+      </span>
+    </el-dialog>
+
     <!-- deleteMeetingDialog -->
     <el-dialog :visible.sync="deleteMeetingDialogFlag">
       <p class="mb30 font30">Delete Meeting</p>
@@ -282,7 +300,7 @@
 
     <!-- groupDialog -->
     <el-dialog :visible.sync="groupDialogFlag" class="groupDialog" width="25%">
-      <img :src="groupQrCode" class="groupQrCode" />
+      <img :src="currentGroupQr" class="groupQrCode" />
     </el-dialog>
     <!-- buddyDialog -->
     <el-dialog :visible.sync="buddyDialogFlag" class="buddyDialog">
@@ -457,6 +475,7 @@ export default {
         // },
       ],
       deletemeetingList:[],
+      deleteGroupList: [],
       updateMeetingObject:{
         purpose: "",
         description: "",
@@ -475,7 +494,8 @@ export default {
         owner: "",
         course_id: ""
       },
-      tmp_groupList: [],
+      groupList: [],
+      currentGroupQr: "",
       // groupList: [
       //   {
       //     groupImg:
@@ -511,6 +531,7 @@ export default {
       isOpen: {},
       isOpenForStudy: {},
       addGroupDialogFlag: false,
+      deleteGroupDialogFlag: false,
       addMeetingDialogFlag: false,
       deleteMeetingDialogFlag: false,
       addCoursesDialogFlag: false,
@@ -519,6 +540,7 @@ export default {
       deletecourseList: [],
       delCoursesSelectors: "",
       delMeetingSelectors: "",
+      delGroupSelectors: "",
       courseList: [],
       userCourseList: [
         // {"label": "COMS 4111", "name": "first"},
@@ -680,6 +702,8 @@ export default {
         // getUserInfo({"user_email":buddies[i]},this.getBuddyInfo_callback);
       }
       var groups = response.body.groups;
+      this.groupList = [];
+      this.deleteGroupList = [];
       for (i = 0; i < groups.length; i++) {
         var tmp_img;
         if (groups[i].app_name == "GroupMe"){
@@ -689,19 +713,25 @@ export default {
         }else if (groups[i].app_name == "Wechat"){
           tmp_img = "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1118145297,860305148&fm=26&gp=0.jpg";
         }
-        this.tmp_groupList = [];
-        this.tmp_groupList.push(
+        this.groupList.push(
             {
               groupImg: tmp_img,
               groupName: groups[i].group_name,
               groupQrCode: groups[i].imageurl,
-              groupOwner: groups[i].owner,
               groupId: groups[i].group_id,
             }
         );
-        // console.log(buddies[i])
+        if (groups[i].owner == this.$cookies.get('user_email')){
+          this.deleteGroupList.push(
+              {
+                groupName: groups[i].group_name,
+                groupId: groups[i].group_id,
+              }
+          );
+        }
         // getUserInfo({"user_email":buddies[i]},this.getBuddyInfo_callback);
       }
+      console.log(this.deleteGroupList)
       // reset meeting list
       this.meetingList = [];
       this.deletemeetingList = [];
@@ -742,6 +772,7 @@ export default {
     },
     confirmAddGroup_callback(response){
       console.log(response);
+      getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
     },
 
     confirmAddMeeting(){
@@ -798,8 +829,10 @@ export default {
       console.log(date);
     },
     //  展示group二维码
-    showGroupDialog() {
+    showGroupDialog(index) {
       this.groupDialogFlag = true;
+      this.currentGroupQr = this.groupList[index].groupQrCode;
+      console.log(this.currentGroupQr)
     },
     //  展示buddy信息弹窗
     showBuddyDialog(index) {
@@ -840,6 +873,9 @@ export default {
     },
     showAddGroupDialog(){
       this.addGroupDialogFlag = true;
+    },
+    showDeleteGroupDialog() {
+      this.deleteGroupDialogFlag = true;
     },
     setUserInfo_callback(){
       // this function is used as call back
@@ -887,6 +923,9 @@ export default {
         },callback);
       }
       reader.readAsDataURL(param.file);
+    },
+    getCourseClick() {
+      getCourseInfo({}, this.activeName, this.getCourseInfo_callback)
     },
     confirmAddCourse() {
       this.$confirm("Are You Sure To Add The Course?", "Tips", {
@@ -966,13 +1005,37 @@ export default {
             this.deleteMeetingDialogFlag = false;
           });
     },
-
+    confirmDeleteGroup(group_id) {
+      this.$confirm("Are You Sure To Delete this meeting?", "Tips", {
+        confirmButtonText: "Yes",
+        cancelButtonText: "No",
+        type: "warning",
+      })
+          .then(() => {
+            console.log("yes");
+            this.deleteGroupDialogFlag = false;
+            console.log(group_id);
+            var delete_data = {
+              purpose : "delete_group",
+              course_id: this.activeName,
+              group_id: group_id
+            }
+            setCourseInfo(delete_data, this.confirmDeleteGroup_callback);
+          })
+          .catch(() => {
+            console.log("no");
+            this.deleteGroupDialogFlag = false;
+          });
+    },
     confirmDeleteMeeting_callback(response){
       console.log(response);
       this.delMeetingSelectors = "";
       getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
     },
-
+    confirmDeleteGroup_callback(response){
+      this.delGroupSelectors = "";
+      getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
+    },
 
 
     showFindBuddyDialog() {
@@ -1124,15 +1187,15 @@ export default {
     //   }
     //   return arr;
     // },
-    groupList: function (){
-      getCourseInfo({}, this.activeName, this.getCourseInfo_callback)
-      let arr = [];
-      // var i;
-      // for (i= 0; i<this.tmp_groupList.length;i++){
-      //   arr.push(this.tmp_groupList[i]);
-      // }
-      return arr;
-    },
+    // groupList: function (){
+    //   getCourseInfo({}, this.activeName, this.getCourseInfo_callback)
+    //   let arr = [];
+    //   // var i;
+    //   // for (i= 0; i<this.tmp_groupList.length;i++){
+    //   //   arr.push(this.tmp_groupList[i]);
+    //   // }
+    //   return arr;
+    // },
     sConditionName: function () {
       if (this.searchForm.buddyType == 1) {
         return "Concentration";
@@ -1262,8 +1325,8 @@ export default {
   }
   .groupQrCode {
     display: block;
-    width: 350px;
-    height: 350px;
+    width: 300px;
+    height: 300px;
   }
   .basicInfo {
     display: flex;
@@ -1437,6 +1500,11 @@ export default {
 }
 .cp {
   cursor: pointer;
+}
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
 }
 /deep/ .el-switch__label--right {
   color: #fff;
