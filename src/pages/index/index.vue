@@ -180,6 +180,19 @@
               class="w200"
           ></el-input>
         </el-form-item>
+        <el-form-item label="APP Name">
+          <el-select v-model="updateGroupObject.app_name" placeholder="Select">
+<!--            <el-option-->
+<!--                v-for="(item, index) in deletemeetingList"-->
+<!--                :key="index"-->
+<!--                :label="item.meetingName+' '+item.meetingTime"-->
+<!--                :value="item.meetingId"-->
+<!--            ></el-option>-->
+            <el-option label="GroupMe" value="GroupMe"></el-option>
+            <el-option label="Facebook" value="Facebook"></el-option>
+            <el-option label="Wechat" value="Wechat"></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="url">
           <el-input
               v-model="updateGroupObject.url"
@@ -456,11 +469,13 @@ export default {
       updateGroupObject:{
         purpose: "",
         group_name: "",
+        app_name: "",
         url: "",
         imageUrl: "",
         owner: "",
         course_id: ""
       },
+      tmp_groupList: [],
       // groupList: [
       //   {
       //     groupImg:
@@ -664,7 +679,29 @@ export default {
         // console.log(buddies[i])
         // getUserInfo({"user_email":buddies[i]},this.getBuddyInfo_callback);
       }
-
+      var groups = response.body.groups;
+      for (i = 0; i < groups.length; i++) {
+        var tmp_img;
+        if (groups[i].app_name == "GroupMe"){
+          tmp_img ="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3505972091,655450644&fm=26&gp=0.jpg";
+        }else if (groups[i].app_name == "Facebook"){
+          tmp_img = "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2043718202,425822973&fm=26&gp=0.jpg";
+        }else if (groups[i].app_name == "Wechat"){
+          tmp_img = "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1118145297,860305148&fm=26&gp=0.jpg";
+        }
+        this.tmp_groupList = [];
+        this.tmp_groupList.push(
+            {
+              groupImg: tmp_img,
+              groupName: groups[i].group_name,
+              groupQrCode: groups[i].imageurl,
+              groupOwner: groups[i].owner,
+              groupId: groups[i].group_id,
+            }
+        );
+        // console.log(buddies[i])
+        // getUserInfo({"user_email":buddies[i]},this.getBuddyInfo_callback);
+      }
       // reset meeting list
       this.meetingList = [];
       this.deletemeetingList = [];
@@ -833,12 +870,15 @@ export default {
 
       setUserInfo(this.userInfoForm, this.setUserInfo_callback);
     },
+    uploadQRImage_callback(image_name){
+      this.updateGroupObject.imageUrl = "https://coms6998-user-photos.s3.amazonaws.com/"+image_name;
+    },
     uploadQRImage(param){
       const formData = new FormData();
       formData.append('file', param.file);
       console.log(param.file);
       var reader = new FileReader();
-      var callback = this.uploadPhoto_callback
+      var callback = this.uploadQRImage_callback
       reader.onloadend = function() {
         var data = reader.result.split(",")[1]
         putPhoto(data,{
@@ -959,7 +999,9 @@ export default {
     // RegisterUser();
     getAllExistingCourse({},this.getcourse_callback).then(()=>{
         let user_email = this.$cookies.get('user_email');
-        getUserInfo({user_email},this.getUserInfo_callback);
+        getUserInfo({user_email},this.getUserInfo_callback).then(()=>{
+          getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
+        });
     });
     // this.$nextTick(function () {
     //     let user_email = this.$cookies.get('user_email');
@@ -985,66 +1027,66 @@ export default {
     // this.list = this.existingCourse.map(item => item+'+');
   },
   computed: {
-    groupList: function () {
-      let arr;
-      if (this.activeName == "first") {
-        arr = [
-          {
-            groupImg:
-              "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3505972091,655450644&fm=26&gp=0.jpg",
-            groupName: "groupMe",
-          },
-          {
-            groupImg:
-              "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2043718202,425822973&fm=26&gp=0.jpg",
-            groupName: "faceBook",
-          },
-          {
-            groupImg:
-              "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1118145297,860305148&fm=26&gp=0.jpg",
-            groupName: "wechat",
-          },
-        ];
-      } else if (this.activeName == "second") {
-        arr = [
-          {
-            groupImg:
-              "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3505972091,655450644&fm=26&gp=0.jpg",
-            groupName: "groupMe",
-          },
-          {
-            groupImg:
-              "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2043718202,425822973&fm=26&gp=0.jpg",
-            groupName: "faceBook",
-          },
-        ];
-      } else if (this.activeName == "third") {
-        arr = [
-          {
-            groupImg:
-              "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3505972091,655450644&fm=26&gp=0.jpg",
-            groupName: "groupMe",
-          },
-        ];
-      } else if (this.activeName == "fourth") {
-        arr = [
-          {
-            groupImg:
-              "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3505972091,655450644&fm=26&gp=0.jpg",
-            groupName: "groupMe",
-          },
-          {
-            groupImg:
-              "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1118145297,860305148&fm=26&gp=0.jpg",
-            groupName: "wechat",
-          },
-        ];
-      } else if (this.activeName.length > 5){
-        console.log(this.activeName);
-        getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
-      }
-      return arr;
-    },
+    // groupList: function () {
+    //   let arr;
+    //   if (this.activeName == "first") {
+    //     arr = [
+    //       {
+    //         groupImg:
+    //           "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3505972091,655450644&fm=26&gp=0.jpg",
+    //         groupName: "groupMe",
+    //       },
+    //       {
+    //         groupImg:
+    //           "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2043718202,425822973&fm=26&gp=0.jpg",
+    //         groupName: "faceBook",
+    //       },
+    //       {
+    //         groupImg:
+    //           "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1118145297,860305148&fm=26&gp=0.jpg",
+    //         groupName: "wechat",
+    //       },
+    //     ];
+    //   } else if (this.activeName == "second") {
+    //     arr = [
+    //       {
+    //         groupImg:
+    //           "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3505972091,655450644&fm=26&gp=0.jpg",
+    //         groupName: "groupMe",
+    //       },
+    //       {
+    //         groupImg:
+    //           "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2043718202,425822973&fm=26&gp=0.jpg",
+    //         groupName: "faceBook",
+    //       },
+    //     ];
+    //   } else if (this.activeName == "third") {
+    //     arr = [
+    //       {
+    //         groupImg:
+    //           "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3505972091,655450644&fm=26&gp=0.jpg",
+    //         groupName: "groupMe",
+    //       },
+    //     ];
+    //   } else if (this.activeName == "fourth") {
+    //     arr = [
+    //       {
+    //         groupImg:
+    //           "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3505972091,655450644&fm=26&gp=0.jpg",
+    //         groupName: "groupMe",
+    //       },
+    //       {
+    //         groupImg:
+    //           "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1118145297,860305148&fm=26&gp=0.jpg",
+    //         groupName: "wechat",
+    //       },
+    //     ];
+    //   } else if (this.activeName.length > 5){
+    //     console.log(this.activeName);
+    //     getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
+    //   }
+    //   return arr;
+    // },
     // buddyLists: function () {
     //   let arr;
     //   if (this.activeName == "first") {
@@ -1082,6 +1124,15 @@ export default {
     //   }
     //   return arr;
     // },
+    groupList: function (){
+      getCourseInfo({}, this.activeName, this.getCourseInfo_callback)
+      let arr = [];
+      // var i;
+      // for (i= 0; i<this.tmp_groupList.length;i++){
+      //   arr.push(this.tmp_groupList[i]);
+      // }
+      return arr;
+    },
     sConditionName: function () {
       if (this.searchForm.buddyType == 1) {
         return "Concentration";
