@@ -40,6 +40,12 @@ export async function setUserInfo(data = {}, callback) {
     callback();
 }
 
+export async function setCourseInfo(data = {}, callback) {
+    // this function will set courses's data to database
+    await Request('/courseinfo', {methods: 'POST', data});
+    callback();
+}
+
 // export async function putPhoto(data = {},headers = {}, callback) {
 //     // this function will set user's data to database
 //     const result = await Request('/photo', { methods: 'PUT', data:data, headers: headers });

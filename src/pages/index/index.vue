@@ -212,31 +212,31 @@
     </el-dialog>
     <!-- addMeetingDialog -->
     <el-dialog title="Add Meeting" :visible.sync="addMeetingDialogFlag">
-      <el-form :model="userInfoForm" ref="userInfoForm" label-width="100px">
+      <el-form :model="updateMeetingObject" ref="userInfoForm" label-width="100px">
         <el-form-item label="Description">
           <el-input
-              v-model="userInfoForm.name"
+              v-model="updateMeetingObject.description"
               placeholder="Enter decription"
               class="w200"
           ></el-input>
         </el-form-item>
         <el-form-item label="URL">
           <el-input
-              v-model="userInfoForm.soc"
-              placeholder="Enter Your City Or State"
+              v-model="updateMeetingObject.url"
+              placeholder="Enter url"
               class="w200 mr10"
           ></el-input>
         </el-form-item>
         <el-form-item label="Time">
           <el-input
-              v-model="userInfoForm.soc"
+              v-model="updateMeetingObject.time"
               placeholder="Enter meeting time"
               class="w200 mr10"
           ></el-input>
         </el-form-item>
         <el-form-item label="Location">
           <el-input
-              v-model="userInfoForm.soc"
+              v-model="updateMeetingObject.location"
               placeholder="Enter location"
               class="w200 mr10"
           ></el-input>
@@ -388,7 +388,7 @@
 
 <script>
 import { FunctionalCalendar } from "vue-functional-calendar";
-import {getCourse, getAllExistingCourse, getUserInfo, setUserInfo, getCourseInfo, putPhoto} from "@/api/api";
+import {getCourse, getAllExistingCourse, getUserInfo, setUserInfo, getCourseInfo, putPhoto, setCourseInfo} from "@/api/api";
 export default {
   name: "index",
   components: {
@@ -417,6 +417,22 @@ export default {
           meetingName: "international academic conferences",
         },
       ],
+      updateMeetingObject:{
+        purpose: "",
+        description: "",
+        url: "",
+        time: "",
+        location: "",
+        host: "",
+        course_id: ""
+      },
+      updateGroupObject:{
+        purpose: "",
+        group_name: "",
+        URL: "",
+        owner: "",
+        course_id: ""
+      },
       // groupList: [
       //   {
       //     groupImg:
@@ -585,8 +601,6 @@ export default {
           }
       );
 
-      console.log(this);
-
     },
 
 
@@ -606,10 +620,21 @@ export default {
     },
     confirmAddGroup(){
       this.addGroupDialogFlag = false;
+      this.updateGroupObject.purpose = "add_new_group";
+      this.updateGroupObject.host = this.$cookies.get('user_email');
+      this.updateGroupObject.course_id = this.activeName;
     },
 
     confirmAddMeeting(){
       this.addMeetingDialogFlag = false;
+      this.updateMeetingObject.purpose = "add_new_meeting";
+      this.updateMeetingObject.host = this.$cookies.get('user_email');
+      this.updateMeetingObject.course_id = this.activeName;
+      setCourseInfo(this.updateMeetingObject, this.confirmAddMeeting_callback);
+    },
+
+    confirmAddMeeting_callback(response){
+      console.log(response);
     },
 
     handleAvatarSuccess(response, file, fileList) {
