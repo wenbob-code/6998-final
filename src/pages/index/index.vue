@@ -149,7 +149,8 @@
             <div class="icons">
               <i class="el-icon-circle-plus font20 mr10 cp"
                  @click="showAddMeetingDialog"></i>
-              <i class="el-icon-delete font20 cp"></i>
+              <i class="el-icon-delete font20 cp"
+                 @click="showDeleteMeetingDialog"></i>
             </div>
           </div>
           <div class="meetingList">
@@ -212,7 +213,7 @@
     </el-dialog>
     <!-- addMeetingDialog -->
     <el-dialog title="Add Meeting" :visible.sync="addMeetingDialogFlag">
-      <el-form :model="updateMeetingObject" ref="userInfoForm" label-width="100px">
+      <el-form :model="updateMeetingObject" ref="updateMeetingObject" label-width="100px">
         <el-form-item label="Description">
           <el-input
               v-model="updateMeetingObject.description"
@@ -246,6 +247,23 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="addMeetingDialogFlag = false">Cancel</el-button>
         <el-button type="primary" @click="confirmAddMeeting">Done</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- deleteMeetingDialog -->
+    <el-dialog :visible.sync="deleteMeetingDialogFlag">
+      <p class="mb30 font30">Delete Meeting</p>
+      <el-select v-model="delMeetingSelectors" placeholder="Select">
+        <el-option
+            v-for="(item, index) in deletemeetingList"
+            :key="index"
+            :label="item.meetingName+' '+item.meetingTime"
+            :value="item.meetingId"
+        ></el-option>
+      </el-select>
+      <span slot="footer">
+        <el-button type="primary" @click="confirmDeleteMeeting(delMeetingSelectors)">Done</el-button>
+        <el-button @click="deleteMeetingDialogFlag = false">Cancel</el-button>
       </span>
     </el-dialog>
 
@@ -417,6 +435,7 @@ export default {
         //   meetingName: "international academic conferences",
         // },
       ],
+      deletemeetingList:[],
       updateMeetingObject:{
         purpose: "",
         description: "",
@@ -468,10 +487,12 @@ export default {
       isOpenForStudy: {},
       addGroupDialogFlag: false,
       addMeetingDialogFlag: false,
+      deleteMeetingDialogFlag: false,
       addCoursesDialogFlag: false,
       delCoursesDialogFlag: false,
       addCoursesSelectors: [],
       delCoursesSelectors: "",
+      delMeetingSelectors: "",
       courseList: [],
       userCourseList: [
         // {"label": "COMS 4111", "name": "first"},
@@ -619,6 +640,7 @@ export default {
 
       // reset meeting list
       this.meetingList = [];
+      this.deletemeetingList = [];
 
       // update meeting info
       for (i = 0; i < response.body.meetings.length; i++) {
@@ -628,8 +650,20 @@ export default {
             {
               meetingTime: response.body.meetings[i].time,
               meetingName: response.body.meetings[i].description,
+              meetingId: response.body.meetings[i].meeting_id,
+
             },
         );
+
+        if (response.body.meetings[i].host == this.$cookies.get('user_email')){
+          this.deletemeetingList.push(
+              {
+                meetingTime: response.body.meetings[i].time,
+                meetingName: response.body.meetings[i].description,
+                meetingId: response.body.meetings[i].meeting_id,
+              },
+          );
+        }
       }
 
 
@@ -656,15 +690,14 @@ export default {
       // reset every thing to empty
       this.updateMeetingObject =
           {
-          purpose: "",
-              description: "",
-              url: "",
-              time: "",
-              location: "",
-              host: "",
-              course_id: ""
+            purpose: "",
+            description: "",
+            url: "",
+            time: "",
+            location: "",
+            host: "",
+            course_id: ""
           };
-
     },
 
     handleAvatarSuccess(response, file, fileList) {
@@ -676,6 +709,10 @@ export default {
 
     showAddMeetingDialog(){
       this.addMeetingDialogFlag = true;
+    },
+
+    showDeleteMeetingDialog(){
+      this.deleteMeetingDialogFlag = true;
     },
 
     //  跳转个人中心
@@ -809,6 +846,38 @@ export default {
           this.delCoursesDialogFlag = false;
         });
     },
+    confirmDeleteMeeting(meeting_id) {
+      this.$confirm("Are You Sure To Delete this meeting?", "Tips", {
+        confirmButtonText: "Yes",
+        cancelButtonText: "No",
+        type: "warning",
+      })
+          .then(() => {
+            console.log("yes");
+            this.deleteMeetingDialogFlag = false;
+            console.log(meeting_id);
+            var delete_data = {
+              purpose : "delete_meeting",
+              course_id: this.activeName,
+              meeting_id: meeting_id
+            }
+            this.updateMeetingObject.host = this.$cookies.get('user_email');
+            setCourseInfo(delete_data, this.confirmDeleteMeeting_callback);
+          })
+          .catch(() => {
+            console.log("no");
+            this.deleteMeetingDialogFlag = false;
+          });
+    },
+
+    confirmDeleteMeeting_callback(response){
+      console.log(response);
+      this.delMeetingSelectors = "";
+      getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
+    },
+
+
+
     showFindBuddyDialog() {
       this.isShowFindBuddyDialog = true;
     },
