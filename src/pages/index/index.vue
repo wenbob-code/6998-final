@@ -404,18 +404,18 @@ export default {
       markedDatesColor: {},
       markedDateRange: [],
       meetingList: [
-        {
-          meetingTime: "2021/2/15 10:00",
-          meetingName: "international academic conferences",
-        },
-        {
-          meetingTime: "2021/2/15 10:00",
-          meetingName: "international academic conferences",
-        },
-        {
-          meetingTime: "2021/2/15 10:00",
-          meetingName: "international academic conferences",
-        },
+        // {
+        //   meetingTime: "2021/2/15 10:00",
+        //   meetingName: "international academic conferences",
+        // },
+        // {
+        //   meetingTime: "2021/2/15 10:00",
+        //   meetingName: "international academic conferences",
+        // },
+        // {
+        //   meetingTime: "2021/2/15 10:00",
+        //   meetingName: "international academic conferences",
+        // },
       ],
       updateMeetingObject:{
         purpose: "",
@@ -611,12 +611,28 @@ export default {
       var buddies = response.body.buddies;
       var i;
       // reset buddy list
-
       this.buddyList = [];
       for (i = 0; i < buddies.length; i++) {
         console.log(buddies[i])
         getUserInfo({"user_email":buddies[i]},this.getBuddyInfo_callback);
       }
+
+      // reset meeting list
+      this.meetingList = [];
+
+      // update meeting info
+      for (i = 0; i < response.body.meetings.length; i++) {
+        console.log(response.body.meetings[i])
+
+        this.meetingList.push(
+            {
+              meetingTime: response.body.meetings[i].time,
+              meetingName: response.body.meetings[i].description,
+            },
+        );
+      }
+
+
     },
     confirmAddGroup(){
       this.addGroupDialogFlag = false;
@@ -635,6 +651,20 @@ export default {
 
     confirmAddMeeting_callback(response){
       console.log(response);
+      getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
+
+      // reset every thing to empty
+      this.updateMeetingObject =
+          {
+          purpose: "",
+              description: "",
+              url: "",
+              time: "",
+              location: "",
+              host: "",
+              course_id: ""
+          };
+
     },
 
     handleAvatarSuccess(response, file, fileList) {
