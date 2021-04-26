@@ -671,7 +671,7 @@ export default {
       if (this.userCourseList.length != 0){
         this.activeName = this.userCourseList[0].name;
         if (this.activeName.length > 10) {
-          getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
+          getCourseInfo({}, this.activeName, "all", this.getCourseInfo_callback);
         }
         else {
           console.log("nothing");
@@ -839,7 +839,7 @@ export default {
     },
     confirmAddGroup_callback(response){
       console.log(response);
-      getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
+      getCourseInfo({}, this.activeName, "group", this.getCourseInfoGroup_callback);
     },
 
     confirmAddMeeting(){
@@ -852,7 +852,7 @@ export default {
 
     confirmAddMeeting_callback(response){
       console.log(response);
-      getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
+      getCourseInfo({}, this.activeName, "meeting", this.getCourseInfoMeeting_callback);
 
       // reset every thing to empty
       this.updateMeetingObject =
@@ -992,7 +992,7 @@ export default {
       reader.readAsDataURL(param.file);
     },
     getCourseClick() {
-      getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
+      getCourseInfo({}, this.activeName, "all", this.getCourseInfo_callback);
 
     },
     confirmAddCourse() {
@@ -1097,14 +1097,78 @@ export default {
             this.deleteGroupDialogFlag = false;
           });
     },
+    getCourseInfoMeeting_callback(response){
+      // reset meeting list
+      this.meetingList = [];
+      this.deletemeetingList = [];
+      var i;
+      // update meeting info
+      for (i = 0; i < response.body.meetings.length; i++) {
+        console.log(response.body.meetings[i])
+
+        this.meetingList.push(
+            {
+              meetingTime: response.body.meetings[i].time,
+              meetingName: response.body.meetings[i].description,
+              meetingId: response.body.meetings[i].meeting_id,
+
+            },
+        );
+
+        if (response.body.meetings[i].host == this.$cookies.get('user_email')){
+          this.deletemeetingList.push(
+              {
+                meetingTime: response.body.meetings[i].time,
+                meetingName: response.body.meetings[i].description,
+                meetingId: response.body.meetings[i].meeting_id,
+              },
+          );
+        }
+      }
+    },
+    getCourseInfoGroup_callback(response){
+      var groups = response.body.groups;
+      this.groupList = [];
+      this.deleteGroupList = [];
+      var i;
+      for (i = 0; i < groups.length; i++) {
+        var tmp_img;
+        if (groups[i].app_name == "GroupMe"){
+          tmp_img = require("../../../static/images/groupme.jpg");
+        }else if (groups[i].app_name == "Facebook"){
+          tmp_img = require("../../../static/images/facebook.jpg");
+        }else if (groups[i].app_name == "Wechat"){
+          tmp_img = require("../../../static/images/wechat.jpg");
+        }else if (groups[i].app_name == "LinkedIn"){
+          tmp_img = require("../../../static/images/linkedin.jpg");
+        }
+        this.groupList.push(
+            {
+              groupImg: tmp_img,
+              groupName: groups[i].group_name,
+              groupQrCode: groups[i].imageurl,
+              groupId: groups[i].group_id,
+            }
+        );
+        if (groups[i].owner == this.$cookies.get('user_email')){
+          this.deleteGroupList.push(
+              {
+                groupName: groups[i].group_name,
+                groupId: groups[i].group_id,
+              }
+          );
+        }
+        // getUserInfo({"user_email":buddies[i]},this.getBuddyInfo_callback);
+      }
+    },
     confirmDeleteMeeting_callback(response){
       console.log(response);
       this.delMeetingSelectors = "";
-      getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
+      getCourseInfo({}, this.activeName, "meeting", this.getCourseInfoMeeting_callback);
     },
     confirmDeleteGroup_callback(response){
       this.delGroupSelectors = "";
-      getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
+      getCourseInfo({}, this.activeName,"group", this.getCourseInfoGroup_callback);
     },
 
 
@@ -1136,7 +1200,7 @@ export default {
         getUserInfo({user_email},this.getUserInfo_callback).then(()=>{
           console.log(this.activeName);
           if (this.activeName != "first"){
-            getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
+            getCourseInfo({}, this.activeName, "all", this.getCourseInfo_callback);
           }
 
         });

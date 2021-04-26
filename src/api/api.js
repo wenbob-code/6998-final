@@ -30,9 +30,9 @@ export async function getUserInfo(data = {}, callback) {
     return Promise.resolve()
 }
 
-export async function getCourseInfo(data = {}, course_id, callback) {
+export async function getCourseInfo(data = {}, course_id,purpose = "", callback,) {
     // this function will get all existing courses from database
-    const result = await Request('/courseinfo?course_id='+course_id, {methods: 'GET', data});
+    const result = await Request('/courseinfo?course_id='+course_id+'&purpose='+ purpose, {methods: 'GET', data});
     callback(result);
 }
 
