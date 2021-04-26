@@ -667,6 +667,22 @@ export default {
       console.log(this.deletecourseList);
       console.log(this.courseList);
       console.log(this.deletecourseList);
+      if (this.userCourseList.length != 0){
+        this.activeName = this.userCourseList[0].name;
+        if (this.activeName.length > 10) {
+          getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
+        }
+        else {
+          console.log("nothing");
+          this.groupList = [];
+          this.buddyList = [];
+        }
+      }
+      // else {
+      //   console.log("nothing");
+      //   this.groupList = [];
+      //   this.buddyList = [];
+      // }
     },
     getBuddyInfo_callback(response){
       console.log(response);
@@ -1008,6 +1024,8 @@ export default {
       }
       // this.userInfoForm.courseTaking += temp_course_id;
 
+      console.log(this.userInfoForm);
+
       this.userInfoForm.FindingBuddy = this.isOpen;
       this.userInfoForm.FindingMate = this.isOpenForStudy;
 
@@ -1117,6 +1135,7 @@ export default {
           if (this.activeName != "first"){
             getCourseInfo({}, this.activeName, this.getCourseInfo_callback);
           }
+
         });
     });
     // this.$nextTick(function () {
