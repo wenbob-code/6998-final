@@ -98,7 +98,7 @@
               >
               <!-- search for teammate -->
               <el-switch
-                v-model= "isOpen[activeName]"
+                v-model= "isOpenForStudy[activeName]"
                 active-text="Open For Team Mate"
                 inactive-text=""
                 @change="changeStatus"
@@ -107,7 +107,7 @@
               </el-switch>
               <!-- search for studyBuddy -->
               <el-switch
-                v-model= "isOpenForStudy[activeName]"
+                v-model= "isOpen[activeName]"
                 active-text="Open For Study Buddy"
                 inactive-text=""
                 @change="changeStudyStatus"
@@ -779,6 +779,7 @@ export default {
       var i;
       // reset buddy list
       this.buddyList = [];
+      this.currentAvailableBuddy = [];
       for (i = 0; i < buddies.length; i++) {
         this.buddyList.push(
             {
@@ -792,7 +793,7 @@ export default {
 
         // console.log(buddies[i])
 
-        if (buddies[i].FindingMate[this.activeName] == true){
+        if (buddies[i].FindingBuddy[this.activeName] == true){
           this.currentAvailableBuddy.push(
               {
                 id: i,
