@@ -408,7 +408,7 @@
             :label="sConditionName"
             v-if="searchForm.buddyType != ''"
           >
-            <el-input v-model="searchForm.sCondition">
+            <el-input v-model="searchForm.sCondition" v-if="searchForm.buddyType == 1" >
 <!--              <el-option-->
 <!--                v-for="(item, index) in searchForm.sConditionList"-->
 <!--                :key="index"-->
@@ -524,6 +524,7 @@ export default {
         //   buddyName: "Wenbo Jiang",
         // },
       ],
+      currentAvailableBuddy: [],
       groupDialogFlag: false,
       groupQrCode: require("../../../static/images/qrCodeOne.png"),
       buddyDialogFlag: false,
@@ -587,13 +588,13 @@ export default {
         ],
       },
       tableData: [
-        {
-          id: 1,
-          headImg: "",
-          name: "11111111",
-          major: "2222222",
-          email: "333333333",
-        },
+        // {
+        //   id: 1,
+        //   headImg: "",
+        //   name: "11111111",
+        //   major: "2222222",
+        //   email: "333333333",
+        // },
       ],
     };
   },
@@ -685,11 +686,13 @@ export default {
       var temp_buddy_type = "";
       if (type == 1){
         temp_buddy_type = "team_mate";
+        getBuddyInfo({}, temp_buddy_type, this.activeName, key_word, this.searchBuddy_callback);
       }
       else{
         temp_buddy_type = "study_buddy";
+        this.tableData = this.currentAvailableBuddy;
       }
-      getBuddyInfo({}, temp_buddy_type, this.activeName, key_word, this.searchBuddy_callback);
+
     },
 
     searchBuddy_callback(response){
@@ -727,6 +730,22 @@ export default {
               buddyCourseTaken: buddies[i].CourseTaken
             }
         );
+
+        console.log(buddies[i])
+
+        if (buddies[i].FindingMate[this.activeName] == true){
+          this.currentAvailableBuddy.push(
+              {
+                id: i,
+                headImg: buddies[i].S3Key,
+                name: buddies[i].FirstName + " " + buddies[i].LastName,
+                major: buddies[i].Major,
+                email: buddies[i].Email
+              }
+          );
+        }
+
+
         // console.log(buddies[i])
         // getUserInfo({"user_email":buddies[i]},this.getBuddyInfo_callback);
       }
@@ -1234,7 +1253,8 @@ export default {
       if (this.searchForm.buddyType == 1) {
         return "Requirements";
       } else if (this.searchForm.buddyType == 2) {
-        return "On/Off Line";
+        // return "On/Off Line";
+        return "";
       } else {
         return "";
       }
