@@ -325,6 +325,7 @@
           <p>{{ searchBuddyDialogInfo.name }}</p>
           <p>{{ searchBuddyDialogInfo.major }}</p>
           <p>{{ searchBuddyDialogInfo.email }}</p>
+          <p>{{ searchBuddyDialogInfo.CityOrState+","+ searchBuddyDialogInfo.Country}}</p>
         </div>
 <!--        <img src="" class="buddyImg mr20" />-->
 <!--        <div class="info font20 lh25">-->
@@ -787,6 +788,8 @@ export default {
               major: response.body[i].Major,
               email: response.body[i].Email,
               skills: response.body[i].Skill,
+              CityOrState: response.body[i].CityOrState,
+              Country: response.body[i].Country,
               buddyCourseTaken: response.body[i].CourseTaken,
             }
         );
@@ -824,6 +827,8 @@ export default {
                 email: buddies[i].Email,
                 buddyCourseTaken: buddies[i].CourseTaken,
                 skills: buddies[i].Skill,
+                CityOrState: buddies[i].CityOrState,
+                Country: buddies[i].Country,
               }
           );
         }
