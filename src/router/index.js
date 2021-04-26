@@ -39,6 +39,7 @@ export default new Router({
             name: "index",
             component: index,
             meta: {
+                title: "Index",
                 requireAuth: true
             }
         },
@@ -47,24 +48,32 @@ export default new Router({
             name: "user",
             component: user,
             meta: {
+                title: "User",
                 requireAuth: true
             }
         },
         {
             path: '/login',
             name: "login",
-            component: login
+            component: login,
+            meta: {
+                title: "Login",
+            }
         },
         {
             path: '/signUp',
             name: "signUp",
-            component: signUp
+            component: signUp,
+            meta: {
+                title: "SignUp",
+            }
         },
         {
             path: '/homePage',
             name: "homePage",
             component: homePage,
             meta: {
+                title: "User Profile",
                 requireAuth: true
             }
         },
