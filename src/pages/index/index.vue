@@ -303,6 +303,44 @@
     <el-dialog :visible.sync="groupDialogFlag" class="groupDialog" width="25%">
       <img :src="currentGroupQr" class="groupQrCode" />
     </el-dialog>
+
+    <!-- searchBuddyDialog -->
+    <el-dialog :visible.sync="searchBuddyDialogFlag" class="buddyDialog">
+      <!-- basicinfo -->
+      <div class="basicInfo mb20">
+        <img :src="searchBuddyDialogInfo.headImg" class="buddyImg mr20" />
+        <div class="info font20 lh25">
+          <p>{{ searchBuddyDialogInfo.name }}</p>
+          <p>{{ searchBuddyDialogInfo.major }}</p>
+          <p>{{ searchBuddyDialogInfo.email }}</p>
+        </div>
+<!--        <img src="" class="buddyImg mr20" />-->
+<!--        <div class="info font20 lh25">-->
+<!--          <p>a</p>-->
+<!--          <p>a</p>-->
+<!--          <p>a</p>-->
+<!--        </div>-->
+      </div>
+      <!-- course-learning-info -->
+      <div class="courseLearning-info">
+        <p class="font20 title mb10">Course Learned:</p>
+        <p class="lh25 pdl5" v-for="(course,index) in searchBuddyDialogInfo.buddyCourseTaken" :key="index">
+        {{course}}</p>
+<!--        <p class="lh25 pdl5">CSEE 4119 W COMPUTER NETWORKS</p>-->
+<!--        <p class="lh25 pdl5">EECS 4764 E IoT - INTELLIG & CONNECTE</p>-->
+<!--        <p class="lh25 pdl5">EEOR 4650 E CONVEX OPTIMIZATION ELCT</p>-->
+<!--        <p class="lh25 pdl5">ELEN 6761 E COMPUTER COMMUNCATION NET</p>-->
+      </div>
+      <div class="courseLearning-info">
+        <p class="font20 title mb10">Skills:</p>
+        <p class="lh25 pdl5" v-for="(skill,index) in searchBuddyDialogInfo.skills" :key="index">
+        {{skill}}</p>
+<!--        <p class="lh25 pdl5">CSEE 4119 W COMPUTER NETWORKS</p>-->
+<!--        <p class="lh25 pdl5">EECS 4764 E IoT - INTELLIG & CONNECTE</p>-->
+<!--        <p class="lh25 pdl5">EEOR 4650 E CONVEX OPTIMIZATION ELCT</p>-->
+<!--        <p class="lh25 pdl5">ELEN 6761 E COMPUTER COMMUNCATION NET</p>-->
+      </div>
+    </el-dialog>
     <!-- buddyDialog -->
     <el-dialog :visible.sync="buddyDialogFlag" class="buddyDialog">
       <!-- basicinfo -->
@@ -427,7 +465,7 @@
       <el-table :data="tableData" style="width: 100%">
         <el-table-column label="HeadImg">
           <template slot-scope="scope">
-            <img :src="scope.row.headImg" />
+            <img :src="scope.row.headImg" class="buddyImg mr20"/>
           </template>
         </el-table-column>
         <el-table-column prop="name" label="Name"> </el-table-column>
@@ -531,6 +569,7 @@ export default {
       buddyDialogFlag: false,
       jwbDialogFlag: false,
       buddyDialogInfo: {},
+      searchBuddyDialogInfo: {},
       isOpen: {},
       isOpenForStudy: {},
       addGroupDialogFlag: false,
@@ -539,6 +578,7 @@ export default {
       deleteMeetingDialogFlag: false,
       addCoursesDialogFlag: false,
       delCoursesDialogFlag: false,
+      searchBuddyDialogFlag: false,
       addCoursesSelectors: [],
       deletecourseList: [],
       delCoursesSelectors: "",
@@ -724,7 +764,9 @@ export default {
               headImg: response.body[i].S3Key,
               name: response.body[i].FirstName + " " + response.body[i].LastName,
               major: response.body[i].Major,
-              email: response.body[i].Email
+              email: response.body[i].Email,
+              skills: response.body[i].Skill,
+              buddyCourseTaken: response.body[i].CourseTaken,
             }
         );
       }
@@ -748,7 +790,7 @@ export default {
             }
         );
 
-        console.log(buddies[i])
+        // console.log(buddies[i])
 
         if (buddies[i].FindingMate[this.activeName] == true){
           this.currentAvailableBuddy.push(
@@ -757,7 +799,9 @@ export default {
                 headImg: buddies[i].S3Key,
                 name: buddies[i].FirstName + " " + buddies[i].LastName,
                 major: buddies[i].Major,
-                email: buddies[i].Email
+                email: buddies[i].Email,
+                buddyCourseTaken: buddies[i].CourseTaken,
+                skills: buddies[i].Skill,
               }
           );
         }
@@ -1177,7 +1221,8 @@ export default {
     },
     checkDetail(row) {
       console.log(row);
-
+      this.searchBuddyDialogFlag = true;
+      this.searchBuddyDialogInfo = row;
     },
     remoteMethod(query) {
       if (query !== "") {
