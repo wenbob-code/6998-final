@@ -159,6 +159,7 @@
               v-for="(item, index) in meetingList"
               :key="index"
               class="meeting-item mb20"
+              @click="showMeetingDialog(index)"
             >
               <div class="icon mr10"></div>
               <div class="colorfff">
@@ -302,6 +303,17 @@
     <!-- groupDialog -->
     <el-dialog :visible.sync="groupDialogFlag" class="groupDialog" width="25%">
       <img :src="currentGroupQr" class="groupQrCode" />
+    </el-dialog>
+
+    <!-- meetingDialog -->
+    <el-dialog :visible.sync="meetingDialogFlag" class="groupDialog" width="25%">
+
+      <p class=".basicInfo">{{currentMeetingDetail.meeting_name}} </p>
+      <p class=".basicInfo">{{currentMeetingDetail.meeting_host}} </p>
+      <p class=".basicInfo">{{currentMeetingDetail.meeting_time}} </p>
+      <p class=".basicInfo">{{currentMeetingDetail.meeting_url}} </p>
+      <p class=".basicInfo">{{currentMeetingDetail.meeting_location}} </p>
+
     </el-dialog>
 
     <!-- searchBuddyDialog -->
@@ -536,6 +548,14 @@ export default {
       },
       groupList: [],
       currentGroupQr: "",
+      currentMeetingDetail:{
+        meeting_name: "",
+        meeting_host: "",
+        meeting_location: "",
+        meeting_url: "",
+        meeting_time: "",
+
+      },
       // groupList: [
       //   {
       //     groupImg:
@@ -565,6 +585,7 @@ export default {
       ],
       currentAvailableBuddy: [],
       groupDialogFlag: false,
+      meetingDialogFlag: false,
       groupQrCode: require("../../../static/images/qrCodeOne.png"),
       buddyDialogFlag: false,
       jwbDialogFlag: false,
@@ -856,7 +877,9 @@ export default {
               meetingTime: response.body.meetings[i].time,
               meetingName: response.body.meetings[i].description,
               meetingId: response.body.meetings[i].meeting_id,
-
+              meetingLocation: response.body.meetings[i].location,
+              meetingHost: response.body.meetings[i].host,
+              meetingUrl: response.body.meetings[i].meeting_url
             },
         );
 
@@ -944,6 +967,18 @@ export default {
       this.groupDialogFlag = true;
       this.currentGroupQr = this.groupList[index].groupQrCode;
       console.log(this.currentGroupQr)
+    },
+    //  展示group二维码
+    showMeetingDialog(index) {
+      this.meetingDialogFlag = true;
+      // this.currentGroupQr = this.groupList[index].groupQrCode;
+      console.log(this.meetingList);
+      // console.log(this.meetingList[index].meetingHost);
+      this.currentMeetingDetail.meeting_host = "Meeting Host: " + this.meetingList[index].meetingHost;
+      this.currentMeetingDetail.meeting_location = "Meeting Location: " + this.meetingList[index].meetingLocation;
+      this.currentMeetingDetail.meeting_name = "Meeting Name: " + this.meetingList[index].meetingName;
+      this.currentMeetingDetail.meeting_time = "Meeting Time: " + this.meetingList[index].meetingTime;
+      this.currentMeetingDetail.meeting_url = "Meeting URL: " + this.meetingList[index].meetingUrl;
     },
     //  展示buddy信息弹窗
     showBuddyDialog(index) {
