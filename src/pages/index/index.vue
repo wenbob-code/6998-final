@@ -115,7 +115,7 @@
               </el-switch>
             </div>
           </div>
-          <div class="groupList">
+          <div class="groupList" style="word-wrap:break-word;">
             <div
               class="group-item"
               v-for="(item, index) in buddyList"
@@ -192,6 +192,7 @@
             <el-option label="GroupMe" value="GroupMe"></el-option>
             <el-option label="Facebook" value="Facebook"></el-option>
             <el-option label="Wechat" value="Wechat"></el-option>
+            <el-option label="LinkedIn" value="LinkedIn"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="url">
@@ -771,11 +772,13 @@ export default {
       for (i = 0; i < groups.length; i++) {
         var tmp_img;
         if (groups[i].app_name == "GroupMe"){
-          tmp_img ="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3505972091,655450644&fm=26&gp=0.jpg";
+          tmp_img = require("../../../static/images/groupme.jpg");
         }else if (groups[i].app_name == "Facebook"){
-          tmp_img = "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2043718202,425822973&fm=26&gp=0.jpg";
+          tmp_img = require("../../../static/images/facebook.jpg");
         }else if (groups[i].app_name == "Wechat"){
-          tmp_img = "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1118145297,860305148&fm=26&gp=0.jpg";
+          tmp_img = require("../../../static/images/wechat.jpg");
+        }else if (groups[i].app_name == "LinkedIn"){
+          tmp_img = require("../../../static/images/linkedin.jpg");
         }
         this.groupList.push(
             {
@@ -1286,6 +1289,7 @@ export default {
 .container {
   padding-bottom: 50px;
   background-color: #acc8ec;
+  overflow: auto;
   .topBanner {
     width: 100%;
     height: 500px;
@@ -1349,10 +1353,14 @@ export default {
         background-color: #acc8ec;
         .groupList {
           display: flex;
+          flex-wrap: wrap;
           .group-item {
-            width: 120px;
+            /*width: 25px;*/
+            width: 25%;
+            float: left;
             flex-basis: 15%;
             cursor: pointer;
+
             .groupImg {
               display: block;
               width: 100px;
